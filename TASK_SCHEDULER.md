@@ -7,6 +7,7 @@ Use the PowerShell wrapper so the scheduled task only has one stable command to 
 - Script: `C:\Users\k_buh\Code\stock_analyzer\scripts\run_scan.ps1`
 - Publish script: `C:\Users\k_buh\Code\stock_analyzer\scripts\publish_site.ps1`
 - Config: `C:\Users\k_buh\Code\stock_analyzer\stocks.json`
+- End-of-day config: `C:\Users\k_buh\Code\stock_analyzer\stocks_eod.json`
 - Database: `C:\Users\k_buh\Code\stock_analyzer\data\stock_analyzer.db`
 - Log file: `C:\Users\k_buh\Code\stock_analyzer\logs\stock_analyzer.log`
 - Dashboard: `C:\Users\k_buh\Code\stock_analyzer\site\index.html`
@@ -37,6 +38,12 @@ Then test one manual publish:
 powershell -ExecutionPolicy Bypass -File C:\Users\k_buh\Code\stock_analyzer\scripts\publish_site.ps1
 ```
 
+To test the end-of-day variant manually:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File C:\Users\k_buh\Code\stock_analyzer\scripts\publish_site.ps1 -InputFile stocks_eod.json
+```
+
 ## Recommended hourly task
 
 Create a task named `StockAnalyzerHourly`.
@@ -63,6 +70,8 @@ Add trigger:
   - Enabled: `checked`
 
 This covers 9:35 AM through 4:35 PM Eastern. The code itself skips when the market is closed, so occasional off-hours runs are safe.
+
+Use `stocks.json` for this task so `market_hours_only` stays enabled.
 
 ### Actions tab
 
@@ -142,7 +151,27 @@ If you want one run after the close:
 - Start time: `4:10 PM`
 - Repeat: none
 
-For end-of-day behavior, set `market_hours_only` to `false`, otherwise the run may be skipped after the close.
+Use `stocks_eod.json` for this task. It sets `market_hours_only` to `false`, so the run is allowed after the market closes and will use the most recent available data.
+
+If you want this run to publish the hosted dashboard, use:
+
+- Program/script:
+
+```text
+powershell.exe
+```
+
+- Add arguments:
+
+```text
+-NoProfile -ExecutionPolicy Bypass -File "C:\Users\k_buh\Code\stock_analyzer\scripts\publish_site.ps1" -InputFile stocks_eod.json
+```
+
+- Start in:
+
+```text
+C:\Users\k_buh\Code\stock_analyzer
+```
 
 ## Command-line creation alternative
 
@@ -150,6 +179,12 @@ You can also create the hourly task from an elevated PowerShell window:
 
 ```powershell
 schtasks /Create /TN "StockAnalyzerHourly" /SC DAILY /ST 09:35 /RI 60 /DU 08:00 /TR "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\Users\k_buh\Code\stock_analyzer\scripts\run_scan.ps1\"" /RL HIGHEST /F
+```
+
+Create the end-of-day publish task from an elevated PowerShell window:
+
+```powershell
+schtasks /Create /TN "StockAnalyzerEndOfDay" /SC DAILY /ST 16:10 /TR "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\Users\k_buh\Code\stock_analyzer\scripts\publish_site.ps1\" -InputFile stocks_eod.json" /RL HIGHEST /F
 ```
 
 ## Verification
@@ -163,6 +198,7 @@ After the task runs, check:
 - `C:\Users\k_buh\Code\stock_analyzer\site\index.html`
 - latest commit on `main` contains updated generated output files
 - GitHub Actions shows a successful `Deploy dashboard to GitHub Pages` run if you used `publish_site.ps1`
+- end-of-day runs should use `stocks_eod.json`, not `stocks.json`
 
 Successful runs write a line like:
 

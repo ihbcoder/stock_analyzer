@@ -80,6 +80,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\publish_site.ps1
 
 See [stocks.json](./stocks.json).
 
+For after-close runs, use [stocks_eod.json](./stocks_eod.json). It uses the same watchlist with `market_hours_only` set to `false`.
+
 ## Notes
 
 - v1 uses JSON only.
@@ -88,6 +90,7 @@ See [stocks.json](./stocks.json).
 - SQLite is built in through Python's standard library. Each run is saved in `analysis_runs` and each ranked stock row is saved in `stock_rankings`.
 - The CLI keeps the old `python main.py stocks.json ...` flow working by treating it as `scan`.
 - When `agent.market_hours_only` is `true`, scans are skipped when the NYSE is closed, including market holidays. The saved run is marked `skipped_market_closed`.
+- Use `stocks.json` for intraday scans and `stocks_eod.json` for end-of-day or evening runs.
 - The CLI writes rotating logs by default to `logs/stock_analyzer.log`.
 - Each scan refreshes a static dashboard at `site/index.html` by default.
 - Each scan also writes `site/dashboard-data.json` for static hosting and browser-side filtering.
