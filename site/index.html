@@ -41,6 +41,26 @@
       margin-bottom: 20px;
     }
     .subtle { color: var(--muted); font-size: 14px; }
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: rgba(16, 25, 42, 0.92);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--neutral);
+    }
+    .status-dot.ok { background: var(--strong); }
+    .status-dot.warn { background: var(--watch); }
+    .status-dot.err { background: var(--weak); }
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -199,6 +219,10 @@
         <h1>Stock Analyzer Dashboard</h1>
         <div class="subtle">Static dashboard generated from the latest saved run</div>
       </div>
+      <div class="status-chip">
+        <span id="refresh-dot" class="status-dot"></span>
+        <span id="refresh-status">Auto-refresh every 60s</span>
+      </div>
     </div>
 
     <div id="summary-grid" class="grid"></div>
@@ -291,14 +315,18 @@
 
   <script id="dashboard-data" type="application/json">{&quot;id&quot;: 1, &quot;generated_at&quot;: &quot;2026-07-27T18:44:10.448862-04:00&quot;, &quot;source_input&quot;: &quot;stocks.json&quot;, &quot;strategy&quot;: &quot;momentum&quot;, &quot;benchmark&quot;: &quot;QQQ&quot;, &quot;minimum_score&quot;: 70, &quot;stock_count&quot;: 0, &quot;run_status&quot;: &quot;skipped_market_closed&quot;, &quot;market_status&quot;: {&quot;calendar&quot;: &quot;NYSE&quot;, &quot;checked_at&quot;: &quot;2026-07-27T18:44:10.448879-04:00&quot;, &quot;closes_at&quot;: &quot;2026-07-27T16:00:00-04:00&quot;, &quot;is_open&quot;: false, &quot;next_open_at&quot;: &quot;2026-07-28T09:30:00-04:00&quot;, &quot;opens_at&quot;: &quot;2026-07-27T09:30:00-04:00&quot;, &quot;reason&quot;: &quot;Market is closed for the day&quot;, &quot;session_date&quot;: &quot;2026-07-27&quot;}, &quot;rankings&quot;: []}</script>
   <script>
-    const rawData = JSON.parse(document.getElementById("dashboard-data").textContent);
-    const allRankings = Array.isArray(rawData.rankings) ? rawData.rankings.slice() : [];
+    let rawData = JSON.parse(document.getElementById("dashboard-data").textContent);
+    let allRankings = Array.isArray(rawData.rankings) ? rawData.rankings.slice() : [];
+    let lastLoadedAt = new Date();
+    const refreshIntervalMs = 60000;
 
     const summaryGrid = document.getElementById("summary-grid");
     const rankingsBody = document.getElementById("rankings-body");
     const signalChart = document.getElementById("signal-chart");
     const scoreChart = document.getElementById("score-chart");
     const marketStatus = document.getElementById("market-status");
+    const refreshDot = document.getElementById("refresh-dot");
+    const refreshStatus = document.getElementById("refresh-status");
 
     const searchInput = document.getElementById("search");
     const signalSelect = document.getElementById("signal");
@@ -483,10 +511,49 @@
       renderSignalChart(filtered);
       renderScoreChart(filtered);
       renderTable(filtered);
+      renderRefreshStatus();
+    }
+
+    function renderRefreshStatus(message = "") {
+      const generatedAt = rawData.generated_at || "unknown";
+      const status = rawData.run_status || "unknown";
+      const suffix = message ? ` | ${message}` : "";
+      refreshStatus.textContent = `Auto-refresh every 60s | run=${status} | generated=${generatedAt}${suffix}`;
+    }
+
+    async function refreshDashboardData() {
+      const refreshUrl = `/dashboard-data.json?t=${Date.now()}`;
+      refreshDot.className = "status-dot warn";
+      renderRefreshStatus("refreshing");
+
+      try {
+        const response = await fetch(refreshUrl, {
+          cache: "no-store",
+          headers: {
+            "cache-control": "no-cache"
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const nextData = await response.json();
+        rawData = nextData;
+        allRankings = Array.isArray(nextData.rankings) ? nextData.rankings.slice() : [];
+        lastLoadedAt = new Date();
+        refreshDot.className = "status-dot ok";
+        renderAll();
+      } catch (error) {
+        const secondsAgo = Math.max(0, Math.round((Date.now() - lastLoadedAt.getTime()) / 1000));
+        refreshDot.className = "status-dot err";
+        renderRefreshStatus(`refresh failed, last good ${secondsAgo}s ago`);
+      }
     }
 
     renderMarketStatus();
     renderAll();
+    refreshDot.className = "status-dot ok";
+    setInterval(refreshDashboardData, refreshIntervalMs);
 
     [searchInput, signalSelect, minScoreInput, sortSelect].forEach(node => {
       node.addEventListener("input", renderAll);
