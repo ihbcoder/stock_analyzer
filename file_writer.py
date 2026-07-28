@@ -1,0 +1,12 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+
+def write_json(path: str | Path, payload: dict[str, Any]) -> None:
+    target = Path(path)
+    with target.open("w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2)
+        handle.write("\n")

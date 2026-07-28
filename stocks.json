@@ -1,0 +1,25 @@
+{
+  "agent": {
+    "strategy": "momentum",
+    "benchmark": "QQQ",
+    "minimum_score": 70,
+    "market_hours_only": true
+  },
+  "stocks": [
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "enabled": true
+    },
+    {
+      "ticker": "AVGO",
+      "name": "Broadcom Inc.",
+      "enabled": true
+    },
+    {
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices, Inc.",
+      "enabled": true
+    }
+  ]
+}

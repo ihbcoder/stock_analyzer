@@ -1,0 +1,6 @@
+__pycache__/
+providers/__pycache__/
+data/
+logs/
+site/
+*.pyc
