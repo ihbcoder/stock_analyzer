@@ -1,0 +1,12 @@
+{
+  "name": "stock-analyzer-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static dashboard build wrapper for the stock analyzer project",
+  "scripts": {
+    "build": "node build-site.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

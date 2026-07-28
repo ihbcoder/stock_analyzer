@@ -64,6 +64,12 @@ Serve the generated dashboard locally:
 python main.py serve --site-dir site --host 127.0.0.1 --port 8000
 ```
 
+Build a deployment-ready static bundle for hosting providers that expect a Node build:
+
+```bash
+node build-site.mjs
+```
+
 ## Input format
 
 See [stocks.json](./stocks.json).
@@ -80,4 +86,5 @@ See [stocks.json](./stocks.json).
 - Each scan refreshes a static dashboard at `site/index.html` by default.
 - Each scan also writes `site/dashboard-data.json` for static hosting and browser-side filtering.
 - The local server uses only Python's standard library.
+- `package.json` and `build-site.mjs` provide a minimal static build path that copies `site/` into `dist/` for hosted deployment.
 - For Windows scheduling details, see [TASK_SCHEDULER.md](./TASK_SCHEDULER.md).
