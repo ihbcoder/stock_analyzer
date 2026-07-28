@@ -1,4 +1,4 @@
-import { copyFileSync, cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const rootDir = resolve(".");
@@ -25,69 +25,30 @@ if (existsSync(hostingSource)) {
   copyFileSync(hostingSource, resolve(hostingOutputDir, "hosting.json"));
 }
 
+const indexHtml = readFileSync(resolve(sourceDir, "index.html"), "utf-8");
+const dashboardData = readFileSync(resolve(sourceDir, "dashboard-data.json"), "utf-8");
+
 writeFileSync(
   serverEntry,
   `import http from "node:http";
-import fs from "node:fs";
-import path from "node:path";
 
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "0.0.0.0";
-const invokedScript = typeof process.argv[1] === "string" ? process.argv[1] : "";
-const candidateClientDirs = [
-  invokedScript ? path.resolve(path.dirname(invokedScript), "..", "client") : "",
-  path.resolve(process.cwd(), "dist", "client"),
-  path.resolve(process.cwd(), "client")
-].filter(Boolean);
-const clientDir = candidateClientDirs.find((candidate) => fs.existsSync(candidate));
-
-if (!clientDir) {
-  throw new Error("Unable to locate deployed client directory.");
-}
-
-const mimeTypes = {
-  ".html": "text/html; charset=utf-8",
-  ".json": "application/json; charset=utf-8",
-  ".js": "text/javascript; charset=utf-8",
-  ".css": "text/css; charset=utf-8",
-  ".png": "image/png",
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".svg": "image/svg+xml",
-  ".ico": "image/x-icon"
-};
-
-function sendFile(filePath, response) {
-  const extension = path.extname(filePath).toLowerCase();
-  const contentType = mimeTypes[extension] || "application/octet-stream";
-  response.writeHead(200, { "Content-Type": contentType });
-  fs.createReadStream(filePath).pipe(response);
-}
+const INDEX_HTML = ${JSON.stringify(indexHtml)};
+const DASHBOARD_JSON = ${JSON.stringify(dashboardData)};
 
 const server = http.createServer((request, response) => {
   const requestUrl = new URL(request.url || "/", "http://localhost");
-  const normalizedPath = decodeURIComponent(requestUrl.pathname === "/" ? "/index.html" : requestUrl.pathname);
-  const candidatePath = path.resolve(clientDir, "." + normalizedPath);
+  const pathname = decodeURIComponent(requestUrl.pathname);
 
-  if (!candidatePath.startsWith(clientDir)) {
-    response.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
-    response.end("Forbidden");
+  if (pathname === "/dashboard-data.json") {
+    response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+    response.end(DASHBOARD_JSON);
     return;
   }
 
-  if (fs.existsSync(candidatePath) && fs.statSync(candidatePath).isFile()) {
-    sendFile(candidatePath, response);
-    return;
-  }
-
-  const fallbackPath = path.resolve(clientDir, "index.html");
-  if (fs.existsSync(fallbackPath)) {
-    sendFile(fallbackPath, response);
-    return;
-  }
-
-  response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-  response.end("Not found");
+  response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+  response.end(INDEX_HTML);
 });
 
 server.listen(port, host, () => {
