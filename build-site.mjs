@@ -33,10 +33,12 @@ import path from "node:path";
 
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "0.0.0.0";
+const invokedScript = typeof process.argv[1] === "string" ? process.argv[1] : "";
 const candidateClientDirs = [
+  invokedScript ? path.resolve(path.dirname(invokedScript), "..", "client") : "",
   path.resolve(process.cwd(), "dist", "client"),
   path.resolve(process.cwd(), "client")
-];
+].filter(Boolean);
 const clientDir = candidateClientDirs.find((candidate) => fs.existsSync(candidate));
 
 if (!clientDir) {
