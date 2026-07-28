@@ -1,0 +1,21 @@
+{
+  "id": 1,
+  "generated_at": "2026-07-27T18:44:10.448862-04:00",
+  "source_input": "stocks.json",
+  "strategy": "momentum",
+  "benchmark": "QQQ",
+  "minimum_score": 70,
+  "stock_count": 0,
+  "run_status": "skipped_market_closed",
+  "market_status": {
+    "calendar": "NYSE",
+    "checked_at": "2026-07-27T18:44:10.448879-04:00",
+    "closes_at": "2026-07-27T16:00:00-04:00",
+    "is_open": false,
+    "next_open_at": "2026-07-28T09:30:00-04:00",
+    "opens_at": "2026-07-27T09:30:00-04:00",
+    "reason": "Market is closed for the day",
+    "session_date": "2026-07-27"
+  },
+  "rankings": []
+}
