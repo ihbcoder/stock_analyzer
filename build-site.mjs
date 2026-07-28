@@ -27,12 +27,15 @@ if (existsSync(hostingSource)) {
 
 writeFileSync(
   serverEntry,
-  `const http = require("node:http");
-const fs = require("node:fs");
-const path = require("node:path");
+  `import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "0.0.0.0";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const clientDir = path.resolve(__dirname, "..", "client");
 
 const mimeTypes = {
