@@ -30,30 +30,29 @@ const dashboardData = readFileSync(resolve(sourceDir, "dashboard-data.json"), "u
 
 writeFileSync(
   serverEntry,
-  `import http from "node:http";
-
-const port = Number(process.env.PORT || 3000);
-const host = process.env.HOST || "0.0.0.0";
-const INDEX_HTML = ${JSON.stringify(indexHtml)};
+  `const INDEX_HTML = ${JSON.stringify(indexHtml)};
 const DASHBOARD_JSON = ${JSON.stringify(dashboardData)};
+const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
+const HTML_HEADERS = { "content-type": "text/html; charset=utf-8" };
 
-const server = http.createServer((request, response) => {
-  const requestUrl = new URL(request.url || "/", "http://localhost");
-  const pathname = decodeURIComponent(requestUrl.pathname);
+export default {
+  async fetch(request) {
+    const requestUrl = new URL(request.url);
+    const pathname = decodeURIComponent(requestUrl.pathname);
 
-  if (pathname === "/dashboard-data.json") {
-    response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-    response.end(DASHBOARD_JSON);
-    return;
+    if (pathname === "/dashboard-data.json") {
+      return new Response(DASHBOARD_JSON, {
+        status: 200,
+        headers: JSON_HEADERS
+      });
+    }
+
+    return new Response(INDEX_HTML, {
+      status: 200,
+      headers: HTML_HEADERS
+    });
   }
-
-  response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-  response.end(INDEX_HTML);
-});
-
-server.listen(port, host, () => {
-  console.log(\`Stock Analyzer dashboard server listening on \${host}:\${port}\`);
-});
+};
 `,
   "utf-8"
 );
