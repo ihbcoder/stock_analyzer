@@ -7,8 +7,16 @@
   },
   "stocks": [
     {
-      "ticker": "NVDA",
-      "name": "NVIDIA Corporation",
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices, Inc.",
+      "enabled": true
+    },
+    {
+      "ticker": "AMZN",
+      "enabled": true
+    },
+    {
+      "ticker": "ARM",
       "enabled": true
     },
     {
@@ -17,8 +25,140 @@
       "enabled": true
     },
     {
-      "ticker": "AMD",
-      "name": "Advanced Micro Devices, Inc.",
+      "ticker": "BBAI",
+      "enabled": true
+    },
+    {
+      "ticker": "BE",
+      "enabled": true
+    },
+    {
+      "ticker": "CAT",
+      "enabled": true
+    },
+    {
+      "ticker": "CIEN",
+      "enabled": true
+    },
+    {
+      "ticker": "COHR",
+      "enabled": true
+    },
+    {
+      "ticker": "CRWV",
+      "enabled": true
+    },
+    {
+      "ticker": "FRMI",
+      "enabled": true
+    },
+    {
+      "ticker": "GEV",
+      "enabled": true
+    },
+    {
+      "ticker": "GOOGL",
+      "enabled": true
+    },
+    {
+      "ticker": "HOOD",
+      "enabled": true
+    },
+    {
+      "ticker": "INTC",
+      "enabled": true
+    },
+    {
+      "ticker": "IONQ",
+      "enabled": true
+    },
+    {
+      "ticker": "IVES",
+      "enabled": true
+    },
+    {
+      "ticker": "LCID",
+      "enabled": true
+    },
+    {
+      "ticker": "LLY",
+      "enabled": true
+    },
+    {
+      "ticker": "LRCX",
+      "enabled": true
+    },
+    {
+      "ticker": "MRVL",
+      "enabled": true
+    },
+    {
+      "ticker": "MU",
+      "enabled": true
+    },
+    {
+      "ticker": "NBIS",
+      "enabled": true
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "enabled": true
+    },
+    {
+      "ticker": "NVTS",
+      "enabled": true
+    },
+    {
+      "ticker": "NXPI",
+      "enabled": true
+    },
+    {
+      "ticker": "PANW",
+      "enabled": true
+    },
+    {
+      "ticker": "PLTR",
+      "enabled": true
+    },
+    {
+      "ticker": "QBTS",
+      "enabled": true
+    },
+    {
+      "ticker": "QS",
+      "enabled": true
+    },
+    {
+      "ticker": "SNDK",
+      "enabled": true
+    },
+    {
+      "ticker": "SOUN",
+      "enabled": true
+    },
+    {
+      "ticker": "STRL",
+      "enabled": true
+    },
+    {
+      "ticker": "TSLA",
+      "enabled": true
+    },
+    {
+      "ticker": "TSM",
+      "enabled": true
+    },
+    {
+      "ticker": "VRT",
+      "enabled": true
+    },
+    {
+      "ticker": "WDC",
+      "enabled": true
+    },
+    {
+      "ticker": "ZM",
       "enabled": true
     }
   ]
