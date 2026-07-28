@@ -549,12 +549,13 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
     }}
 
     async function refreshDashboardData() {{
-      const refreshUrl = `/dashboard-data.json?t=${{Date.now()}}`;
+      const refreshUrl = new URL("dashboard-data.json", window.location.href);
+      refreshUrl.searchParams.set("t", Date.now().toString());
       refreshDot.className = "status-dot warn";
       renderRefreshStatus("refreshing");
 
       try {{
-        const response = await fetch(refreshUrl, {{
+        const response = await fetch(refreshUrl.toString(), {{
           cache: "no-store",
           headers: {{
             "cache-control": "no-cache"

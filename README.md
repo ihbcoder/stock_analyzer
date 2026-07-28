@@ -70,6 +70,12 @@ Build a deployment-ready static bundle for hosting providers that expect a Node 
 node build-site.mjs
 ```
 
+Run a scan, regenerate the dashboard, commit the generated files, and push them for hosted publishing:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\publish_site.ps1
+```
+
 ## Input format
 
 See [stocks.json](./stocks.json).
@@ -87,4 +93,7 @@ See [stocks.json](./stocks.json).
 - Each scan also writes `site/dashboard-data.json` for static hosting and browser-side filtering.
 - The local server uses only Python's standard library.
 - `package.json` and `build-site.mjs` provide a minimal static build path that copies `site/` into `dist/` for hosted deployment.
+- `.github/workflows/deploy-pages.yml` deploys the tracked `site/` output to GitHub Pages on each push to `main` that changes `site/`.
+- GitHub Pages requires a one-time repository setting change: in GitHub, open `Settings` -> `Pages` and set `Source` to `GitHub Actions`.
+- `scripts/publish_site.ps1` is the unattended publish entry point for Task Scheduler. It stages only generated output files: `results.json`, `site/index.html`, and `site/dashboard-data.json`.
 - For Windows scheduling details, see [TASK_SCHEDULER.md](./TASK_SCHEDULER.md).

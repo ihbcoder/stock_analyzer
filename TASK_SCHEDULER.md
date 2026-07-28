@@ -5,6 +5,7 @@ Use the PowerShell wrapper so the scheduled task only has one stable command to 
 ## Files used
 
 - Script: `C:\Users\k_buh\Code\stock_analyzer\scripts\run_scan.ps1`
+- Publish script: `C:\Users\k_buh\Code\stock_analyzer\scripts\publish_site.ps1`
 - Config: `C:\Users\k_buh\Code\stock_analyzer\stocks.json`
 - Database: `C:\Users\k_buh\Code\stock_analyzer\data\stock_analyzer.db`
 - Log file: `C:\Users\k_buh\Code\stock_analyzer\logs\stock_analyzer.log`
@@ -23,6 +24,17 @@ Run one manual scan first:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File C:\Users\k_buh\Code\stock_analyzer\scripts\run_scan.ps1
+```
+
+If you want the public web page to update automatically after each run, first configure GitHub Pages once in the repository:
+
+- GitHub -> `stock_analyzer` -> `Settings` -> `Pages`
+- Under `Build and deployment`, set `Source` to `GitHub Actions`
+
+Then test one manual publish:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File C:\Users\k_buh\Code\stock_analyzer\scripts\publish_site.ps1
 ```
 
 ## Recommended hourly task
@@ -67,6 +79,26 @@ powershell.exe
 
 ```text
 -NoProfile -ExecutionPolicy Bypass -File "C:\Users\k_buh\Code\stock_analyzer\scripts\run_scan.ps1"
+```
+
+- Start in:
+
+```text
+C:\Users\k_buh\Code\stock_analyzer
+```
+
+If you want hosted publishing instead of local-only dashboard refresh, use this action instead:
+
+- Program/script:
+
+```text
+powershell.exe
+```
+
+- Add arguments:
+
+```text
+-NoProfile -ExecutionPolicy Bypass -File "C:\Users\k_buh\Code\stock_analyzer\scripts\publish_site.ps1"
 ```
 
 - Start in:
@@ -129,6 +161,8 @@ After the task runs, check:
 - `C:\Users\k_buh\Code\stock_analyzer\results.json`
 - `C:\Users\k_buh\Code\stock_analyzer\data\stock_analyzer.db`
 - `C:\Users\k_buh\Code\stock_analyzer\site\index.html`
+- latest commit on `main` contains updated generated output files
+- GitHub Actions shows a successful `Deploy dashboard to GitHub Pages` run if you used `publish_site.ps1`
 
 Successful runs write a line like:
 
