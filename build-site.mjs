@@ -30,13 +30,18 @@ writeFileSync(
   `import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "0.0.0.0";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const clientDir = path.resolve(__dirname, "..", "client");
+const candidateClientDirs = [
+  path.resolve(process.cwd(), "dist", "client"),
+  path.resolve(process.cwd(), "client")
+];
+const clientDir = candidateClientDirs.find((candidate) => fs.existsSync(candidate));
+
+if (!clientDir) {
+  throw new Error("Unable to locate deployed client directory.");
+}
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
