@@ -1,19 +1,106 @@
 {
-  "generated_at": "2026-07-27T18:44:10.448862-04:00",
+  "generated_at": "2026-07-28T19:36:04.618471-04:00",
   "strategy": "momentum",
   "benchmark": "QQQ",
   "minimum_score": 70,
-  "market_hours_only": true,
-  "run_status": "skipped_market_closed",
+  "market_hours_only": false,
+  "run_status": "success",
   "market_status": {
     "calendar": "NYSE",
-    "checked_at": "2026-07-27T18:44:10.448879-04:00",
+    "checked_at": "2026-07-28T19:36:04.618489-04:00",
     "is_open": false,
     "reason": "Market is closed for the day",
-    "opens_at": "2026-07-27T09:30:00-04:00",
-    "closes_at": "2026-07-27T16:00:00-04:00",
-    "session_date": "2026-07-27",
-    "next_open_at": "2026-07-28T09:30:00-04:00"
+    "opens_at": "2026-07-28T09:30:00-04:00",
+    "closes_at": "2026-07-28T16:00:00-04:00",
+    "session_date": "2026-07-28",
+    "next_open_at": "2026-07-29T09:30:00-04:00"
   },
-  "rankings": []
+  "rankings": [
+    {
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices, Inc.",
+      "price": 454.6199951171875,
+      "score": 37,
+      "signal": "WEAK",
+      "metrics": {
+        "price": 454.6199951171875,
+        "return_5d": -0.16496151712214235,
+        "return_20d": -0.1573152359700256,
+        "return_60d": 0.2824621502474878,
+        "rsi_14": 39.179671787557254,
+        "relative_volume_20": 1.296647146855883,
+        "distance_from_52_week_high": null,
+        "macd": -2.1080634221855235,
+        "macd_signal": 6.504726837378709,
+        "benchmark_return_20d": -0.06710588016329655,
+        "benchmark_return_60d": 0.0116063140044671
+      },
+      "reasons": [
+        "Price is above the 200-day SMA",
+        "Outperformed the benchmark over 60 days",
+        "Positive 60-day return",
+        "Volume is above the 20-day average"
+      ],
+      "risk_flags": [],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "AVGO",
+      "name": "Broadcom Inc.",
+      "price": 380.9100036621094,
+      "score": 30,
+      "signal": "WEAK",
+      "metrics": {
+        "price": 380.9100036621094,
+        "return_5d": -0.014463121184710492,
+        "return_20d": 0.02271443462962086,
+        "return_60d": -0.0874876977084803,
+        "rsi_14": 47.43314731803734,
+        "relative_volume_20": 0.9518149447641578,
+        "distance_from_52_week_high": null,
+        "macd": -2.0378803907959195,
+        "macd_signal": -2.8851138758694512,
+        "benchmark_return_20d": -0.06710588016329655,
+        "benchmark_return_60d": 0.0116063140044671
+      },
+      "reasons": [
+        "Price is above the 200-day SMA",
+        "Outperformed the benchmark over 20 days",
+        "Positive 20-day return",
+        "MACD is above its signal line"
+      ],
+      "risk_flags": [],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "price": 197.00999450683594,
+      "score": 26,
+      "signal": "WEAK",
+      "metrics": {
+        "price": 197.00999450683594,
+        "return_5d": -0.04959235424889452,
+        "return_20d": 0.01046311367574737,
+        "return_60d": -0.012827643049708626,
+        "rsi_14": 42.94869805540391,
+        "relative_volume_20": 0.9650343326341018,
+        "distance_from_52_week_high": null,
+        "macd": -0.6638572402498539,
+        "macd_signal": -0.08724550287323857,
+        "benchmark_return_20d": -0.06710588016329655,
+        "benchmark_return_60d": 0.0116063140044671
+      },
+      "reasons": [
+        "Price is above the 200-day SMA",
+        "Outperformed the benchmark over 20 days",
+        "Positive 20-day return"
+      ],
+      "risk_flags": [],
+      "status": "success",
+      "error": null
+    }
+  ]
 }
