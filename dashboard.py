@@ -18,6 +18,10 @@ def build_dashboard(db_path: str | Path, output_path: str | Path) -> Path:
     target.write_text(_render_dashboard_html(latest_run), encoding="utf-8")
     companion_json_path = target.with_name("dashboard-data.json")
     companion_json_path.write_text(json.dumps(latest_run, indent=2), encoding="utf-8")
+    simple_results_path = target.with_name("results.html")
+    simple_results_path.write_text(_render_simple_results_html(latest_run), encoding="utf-8")
+    favicon_svg_path = target.with_name("favicon.svg")
+    favicon_svg_path.write_text(_render_favicon_svg(), encoding="utf-8")
     return target
 
 
@@ -31,6 +35,7 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Stock Analyzer Results - {html.escape(title_suffix)}</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <style>
     :root {{
       color-scheme: dark;
@@ -600,4 +605,295 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
   </script>
 </body>
 </html>
+"""
+
+
+def _render_simple_results_html(run: dict[str, Any]) -> str:
+    title_suffix = f"Run {run.get('id', 'n/a')}" if run else "No data"
+    rankings = run.get("rankings", []) or []
+    market_status = run.get("market_status", {}) or {}
+
+    def fmt_percent(value: Any) -> str:
+        if value is None:
+            return ""
+        try:
+            return f"{float(value) * 100:.1f}%"
+        except (TypeError, ValueError):
+            return ""
+
+    def fmt_number(value: Any, digits: int = 2) -> str:
+        if value is None:
+            return ""
+        try:
+            return f"{float(value):.{digits}f}"
+        except (TypeError, ValueError):
+            return ""
+
+    def render_notes(item: dict[str, Any]) -> str:
+        reasons = item.get("reasons") or []
+        risk_flags = item.get("risk_flags") or []
+        parts: list[str] = []
+        if reasons:
+            parts.append(
+                "<div><strong>Reasons:</strong><ul>"
+                + "".join(f"<li>{html.escape(str(reason))}</li>" for reason in reasons[:5])
+                + "</ul></div>"
+            )
+        if risk_flags:
+            parts.append(
+                "<div><strong>Risk flags:</strong><ul>"
+                + "".join(f"<li>{html.escape(str(flag))}</li>" for flag in risk_flags[:5])
+                + "</ul></div>"
+            )
+        if not parts:
+            return "<span class=\"muted\">None</span>"
+        return "".join(parts)
+
+    rows = []
+    for item in rankings:
+        metrics = item.get("metrics") or {}
+        signal = html.escape(str(item.get("signal", "")))
+        rows.append(
+            f"""
+            <tr>
+              <td>{html.escape(str(item.get("rank_position", "")))}</td>
+              <td>{html.escape(str(item.get("ticker", "")))}</td>
+              <td><span class="pill {signal}">{signal}</span></td>
+              <td>{html.escape(str(item.get("score", "")))}</td>
+              <td>{fmt_number(item.get("price"))}</td>
+              <td>{fmt_percent(metrics.get("return_5d"))}</td>
+              <td>{fmt_percent(metrics.get("return_20d"))}</td>
+              <td>{fmt_percent(metrics.get("return_60d"))}</td>
+              <td>{fmt_number(metrics.get("rsi_14"), 1)}</td>
+              <td>{fmt_number(metrics.get("relative_volume_20"), 2)}</td>
+              <td>{render_notes(item)}</td>
+            </tr>
+            """
+        )
+
+    table_html = (
+        """
+        <tr>
+          <td colspan="11" class="empty">No rankings are available in the latest saved run.</td>
+        </tr>
+        """
+        if not rows
+        else "".join(rows)
+    )
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stock Analyzer Plain Results - {html.escape(title_suffix)}</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    :root {{
+      color-scheme: dark;
+      --bg: #08101c;
+      --panel: #10192a;
+      --border: #22314c;
+      --text: #e6eef9;
+      --muted: #8ca0bf;
+      --strong: #22c55e;
+      --watch: #f59e0b;
+      --neutral: #38bdf8;
+      --weak: #ef4444;
+      --error: #f97316;
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{
+      margin: 0;
+      font-family: Segoe UI, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }}
+    .wrap {{
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px;
+    }}
+    .panel {{
+      background: rgba(16, 25, 42, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }}
+    .summary {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }}
+    .metric {{
+      background: rgba(16, 25, 42, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }}
+    .metric-label {{
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }}
+    .metric-value {{
+      margin-top: 8px;
+      font-size: 24px;
+      font-weight: 700;
+    }}
+    .subtle, .muted {{
+      color: var(--muted);
+    }}
+    .links {{
+      margin: 12px 0 0;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }}
+    a {{
+      color: #7dd3fc;
+      text-decoration: none;
+    }}
+    a:hover {{
+      text-decoration: underline;
+    }}
+    .pill {{
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }}
+    .STRONG {{ background: rgba(34, 197, 94, 0.18); color: var(--strong); }}
+    .WATCH {{ background: rgba(245, 158, 11, 0.18); color: var(--watch); }}
+    .NEUTRAL {{ background: rgba(56, 189, 248, 0.18); color: var(--neutral); }}
+    .WEAK {{ background: rgba(239, 68, 68, 0.18); color: var(--weak); }}
+    .ERROR {{ background: rgba(249, 115, 22, 0.18); color: var(--error); }}
+    .table-wrap {{
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(16, 25, 42, 0.95);
+    }}
+    table {{
+      width: 100%;
+      border-collapse: collapse;
+    }}
+    th, td {{
+      padding: 12px 10px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }}
+    th {{
+      position: sticky;
+      top: 0;
+      background: #0f1727;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }}
+    tr:last-child td {{
+      border-bottom: none;
+    }}
+    .empty {{
+      text-align: center;
+      color: var(--muted);
+      padding: 32px 16px;
+    }}
+    ul {{
+      margin: 6px 0 0;
+      padding-left: 18px;
+    }}
+    li {{
+      margin-bottom: 4px;
+    }}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <h1>Stock Analyzer Plain Results</h1>
+      <p class="subtle">Simple static page for reviewing the latest run without interactive filters.</p>
+      <div class="links">
+        <a href="index.html">Open interactive page</a>
+        <a href="dashboard-data.json">Open raw dashboard JSON</a>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div class="metric">
+        <div class="metric-label">Generated at</div>
+        <div class="metric-value">{html.escape(str(run.get("generated_at", "")))}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Run status</div>
+        <div class="metric-value">{html.escape(str(run.get("run_status", "")))}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Market state</div>
+        <div class="metric-value">{"OPEN" if market_status.get("is_open") else "CLOSED"}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Total symbols</div>
+        <div class="metric-value">{len(rankings)}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Top ticker</div>
+        <div class="metric-value">{html.escape(str(rankings[0].get("ticker", ""))) if rankings else ""}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Top score</div>
+        <div class="metric-value">{html.escape(str(rankings[0].get("score", ""))) if rankings else ""}</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <strong>Market reason:</strong> {html.escape(str(market_status.get("reason", "")))}<br>
+      <strong>Session date:</strong> {html.escape(str(market_status.get("session_date", "")))}<br>
+      <strong>Opens:</strong> {html.escape(str(market_status.get("opens_at", "")))}<br>
+      <strong>Closes:</strong> {html.escape(str(market_status.get("closes_at", "")))}<br>
+      <strong>Next open:</strong> {html.escape(str(market_status.get("next_open_at", "")))}
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Ticker</th>
+            <th>Signal</th>
+            <th>Score</th>
+            <th>Price</th>
+            <th>5d</th>
+            <th>20d</th>
+            <th>60d</th>
+            <th>RSI</th>
+            <th>Rel Vol</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {table_html}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
+"""
+
+
+def _render_favicon_svg() -> str:
+    return """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#08101c"/>
+  <rect x="12" y="34" width="8" height="18" rx="2" fill="#38bdf8"/>
+  <rect x="28" y="24" width="8" height="28" rx="2" fill="#f59e0b"/>
+  <rect x="44" y="14" width="8" height="38" rx="2" fill="#22c55e"/>
+</svg>
 """
