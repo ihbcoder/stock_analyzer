@@ -27,7 +27,7 @@ def build_dashboard(db_path: str | Path, output_path: str | Path) -> Path:
 
 def _render_dashboard_html(run: dict[str, Any]) -> str:
     title_suffix = f"Run {run.get('id', 'n/a')}" if run else "No data"
-    embedded_json = html.escape(json.dumps(run))
+    embedded_json = json.dumps(run).replace("</", "<\\/")
 
     return f"""<!DOCTYPE html>
 <html lang="en">
