@@ -234,6 +234,14 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
       border-radius: 14px;
       padding: 14px 16px;
     }}
+    .action-summary {{
+      margin-bottom: 16px;
+      background: rgba(16, 25, 42, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 15px;
+    }}
     .status-dot {{
       width: 10px;
       height: 10px;
@@ -443,6 +451,8 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
       <div><strong>How to use:</strong> start with no filters, sort by score, then look at the top rows. Use a minimum score like <strong>60</strong> or <strong>70</strong> to narrow the list. Use ticker search only when you want to inspect one symbol.</div>
     </section>
 
+    <section id="action-summary" class="action-summary"></section>
+
     <section id="schedule-banner" class="schedule-banner"></section>
 
     <div id="summary-grid" class="grid"></div>
@@ -549,6 +559,7 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
     const rebalanceHoldings = document.getElementById("rebalance-holdings");
     const rebalanceTargets = document.getElementById("rebalance-targets");
     const scheduleBanner = document.getElementById("schedule-banner");
+    const actionSummary = document.getElementById("action-summary");
 
     const searchInput = document.getElementById("search");
     const signalSelect = document.getElementById("signal");
@@ -826,6 +837,21 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
       `;
     }}
 
+    function renderActionSummary() {{
+      const rebalance = rawData.rebalance || {{}};
+      if (!rebalance.available) {{
+        actionSummary.innerHTML = `<strong>Today:</strong> Monitoring only. Add holdings.txt to enable rebalance actions.`;
+        return;
+      }}
+
+      const schedule = rebalance.schedule || {{}};
+      const summary = rebalance.summary || {{}};
+      actionSummary.innerHTML = `
+        <strong>Today:</strong> ${{safe(schedule.status || "UNKNOWN")}}
+        <span class="subtle"> | Next rebalance: ${{safe(schedule.next_rebalance_date || "")}} after market close | Current recommendation: Sell ${{safe(summary.sell_count || 0)}}, Buy ${{safe(summary.buy_count || 0)}}, Keep ${{safe(summary.keep_count || 0)}}</span>
+      `;
+    }}
+
     function renderTable(filtered) {{
       resultsCount.textContent = `Showing ${{filtered.length}} of ${{allRankings.length}} symbols`;
 
@@ -900,6 +926,7 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
     }}
 
     applyDefaultFilterState();
+    renderActionSummary();
     renderScheduleBanner();
     renderMarketStatus();
     renderRebalanceSection();
@@ -1240,6 +1267,11 @@ def _render_simple_results_html(run: dict[str, Any]) -> str:
         <a href="index.html">Open interactive page</a>
         <a href="dashboard-data.json">Open raw dashboard JSON</a>
       </div>
+    </div>
+
+    <div class="panel">
+      <strong>Today:</strong> {html.escape(str((rebalance.get("schedule") or {}).get("status") or "UNKNOWN"))}
+      <span class="subtle"> | Next rebalance: {html.escape(str((rebalance.get("schedule") or {}).get("next_rebalance_date") or ""))} after market close | Current recommendation: Sell {html.escape(str((rebalance.get("summary") or {}).get("sell_count", 0)))}, Buy {html.escape(str((rebalance.get("summary") or {}).get("buy_count", 0)))}, Keep {html.escape(str((rebalance.get("summary") or {}).get("keep_count", 0)))}</span>
     </div>
 
     <div class="summary">
