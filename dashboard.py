@@ -2,10 +2,17 @@ from __future__ import annotations
 
 import html
 import json
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
-from db import get_latest_run
+import pandas as pd
+import pandas_market_calendars as mcal
+from db import get_latest_run, get_recent_full_runs
+from rebalance import build_rebalance_plan, load_holdings
+
+EASTERN_TZ = ZoneInfo("America/New_York")
 
 
 def build_dashboard(db_path: str | Path, output_path: str | Path) -> Path:
@@ -15,6 +22,8 @@ def build_dashboard(db_path: str | Path, output_path: str | Path) -> Path:
     if latest_run is None:
         latest_run = {"rankings": [], "market_status": {}, "run_status": "no_data"}
 
+    latest_run = _attach_rebalance_data(db_path, target, latest_run)
+
     target.write_text(_render_dashboard_html(latest_run), encoding="utf-8")
     companion_json_path = target.with_name("dashboard-data.json")
     companion_json_path.write_text(json.dumps(latest_run, indent=2), encoding="utf-8")
@@ -23,6 +32,139 @@ def build_dashboard(db_path: str | Path, output_path: str | Path) -> Path:
     favicon_svg_path = target.with_name("favicon.svg")
     favicon_svg_path.write_text(_render_favicon_svg(), encoding="utf-8")
     return target
+
+
+def _attach_rebalance_data(db_path: str | Path, target: Path, latest_run: dict[str, Any]) -> dict[str, Any]:
+    run = dict(latest_run)
+    recent_runs = get_recent_full_runs(db_path, limit=2)
+    latest_full_run = recent_runs[0] if recent_runs else run
+    previous_run = recent_runs[1] if len(recent_runs) > 1 else None
+
+    project_root = target.parent.parent
+    primary_holdings_file = project_root / "holdings.txt"
+    example_holdings_file = project_root / "holdings_example.txt"
+
+    holdings_source: str | None = None
+    holdings_file: Path | None = None
+
+    if primary_holdings_file.exists():
+        holdings_file = primary_holdings_file
+        holdings_source = primary_holdings_file.name
+    elif example_holdings_file.exists():
+        holdings_file = example_holdings_file
+        holdings_source = example_holdings_file.name
+
+    if holdings_file is None:
+        run["rebalance"] = {
+            "available": False,
+            "message": "No holdings file found. Add holdings.txt with one ticker per line.",
+            "holdings_source": None,
+        }
+        return run
+
+    holdings = load_holdings(holdings_file=holdings_file)
+    rebalance_plan = build_rebalance_plan(latest_full_run, previous_run, holdings)
+    rebalance_plan["available"] = True
+    rebalance_plan["holdings_source"] = holdings_source
+    rebalance_plan["is_example_source"] = holdings_source == "holdings_example.txt"
+    rebalance_plan["schedule"] = _build_rebalance_schedule(
+        latest_full_run.get("generated_at"),
+        calendar_name=str((latest_full_run.get("market_status") or {}).get("calendar") or "NYSE"),
+    )
+    run["rebalance"] = rebalance_plan
+    return run
+
+
+def _build_rebalance_schedule(generated_at: Any, calendar_name: str = "NYSE") -> dict[str, Any]:
+    current_time = _parse_eastern_datetime(generated_at)
+    calendar = mcal.get_calendar(calendar_name)
+
+    month_anchor = current_time.date().replace(day=1)
+    next_month_anchor = (month_anchor.replace(day=28) + timedelta(days=4)).replace(day=1)
+    end_month_anchor = (next_month_anchor.replace(day=28) + timedelta(days=4)).replace(day=1)
+
+    schedule = calendar.schedule(start_date=month_anchor, end_date=end_month_anchor)
+    if schedule.empty:
+        return {
+            "strategy": "first_trading_day_after_close",
+            "status": "UNKNOWN",
+            "message": "Unable to compute rebalance schedule from market calendar.",
+            "rebalance_date": None,
+            "next_rebalance_date": None,
+            "next_rebalance_at": None,
+            "last_scheduled_rebalance_date": None,
+        }
+
+    schedule = schedule.copy()
+    schedule["market_open"] = pd.to_datetime(schedule["market_open"]).dt.tz_convert(EASTERN_TZ)
+    schedule["market_close"] = pd.to_datetime(schedule["market_close"]).dt.tz_convert(EASTERN_TZ)
+
+    current_month_first = _first_session_for_month(schedule, month_anchor.month, month_anchor.year)
+    next_month_first = _first_session_for_month(schedule, next_month_anchor.month, next_month_anchor.year)
+
+    rebalance_date = current_month_first["session_date"] if current_month_first else None
+    rebalance_close = current_month_first["market_close"] if current_month_first else None
+
+    if current_month_first and current_time.date() < current_month_first["session_date"]:
+        status = "MONITOR_ONLY"
+        message = f"Monitor only. Next rebalance is after the close on {current_month_first['session_date'].isoformat()}."
+        next_rebalance_date = current_month_first["session_date"]
+        next_rebalance_at = current_month_first["market_close"]
+        last_rebalance_date = None
+    elif current_month_first and current_time.date() == current_month_first["session_date"]:
+        if rebalance_close and current_time < rebalance_close:
+            status = "REBALANCE_AFTER_CLOSE_TODAY"
+            message = f"Rebalance after the close today ({current_month_first['session_date'].isoformat()})."
+        else:
+            status = "REBALANCE_TODAY"
+            message = f"Today is the monthly rebalance day ({current_month_first['session_date'].isoformat()})."
+        next_rebalance_date = next_month_first["session_date"] if next_month_first else None
+        next_rebalance_at = next_month_first["market_close"] if next_month_first else None
+        last_rebalance_date = current_month_first["session_date"]
+    else:
+        status = "MONITOR_ONLY"
+        message = (
+            f"Monitor only. The next scheduled rebalance is after the close on {next_month_first['session_date'].isoformat()}."
+            if next_month_first
+            else "Monitor only. No future rebalance date found."
+        )
+        next_rebalance_date = next_month_first["session_date"] if next_month_first else None
+        next_rebalance_at = next_month_first["market_close"] if next_month_first else None
+        last_rebalance_date = current_month_first["session_date"] if current_month_first else None
+
+    return {
+        "strategy": "first_trading_day_after_close",
+        "status": status,
+        "message": message,
+        "rebalance_date": rebalance_date.isoformat() if rebalance_date else None,
+        "next_rebalance_date": next_rebalance_date.isoformat() if next_rebalance_date else None,
+        "next_rebalance_at": next_rebalance_at.isoformat() if next_rebalance_at else None,
+        "last_scheduled_rebalance_date": last_rebalance_date.isoformat() if last_rebalance_date else None,
+    }
+
+
+def _first_session_for_month(schedule: pd.DataFrame, month: int, year: int) -> dict[str, Any] | None:
+    matching = schedule[(schedule.index.month == month) & (schedule.index.year == year)]
+    if matching.empty:
+        return None
+    session_date = matching.index[0].date()
+    row = matching.iloc[0]
+    return {
+        "session_date": session_date,
+        "market_open": row["market_open"],
+        "market_close": row["market_close"],
+    }
+
+
+def _parse_eastern_datetime(value: Any) -> datetime:
+    if isinstance(value, datetime):
+        return value.astimezone(EASTERN_TZ)
+    if isinstance(value, str) and value:
+        parsed = datetime.fromisoformat(value)
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=EASTERN_TZ)
+        return parsed.astimezone(EASTERN_TZ)
+    return datetime.now(EASTERN_TZ)
 
 
 def _render_dashboard_html(run: dict[str, Any]) -> str:
@@ -253,6 +395,30 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
       color: var(--muted);
       font-size: 13px;
     }}
+    .source-note {{
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }}
+    .schedule-banner {{
+      margin-bottom: 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: rgba(16, 25, 42, 0.92);
+    }}
+    .schedule-banner.MONITOR_ONLY {{
+      border-color: #1d4ed8;
+      background: rgba(29, 78, 216, 0.12);
+    }}
+    .schedule-banner.REBALANCE_AFTER_CLOSE_TODAY {{
+      border-color: #d97706;
+      background: rgba(217, 119, 6, 0.16);
+    }}
+    .schedule-banner.REBALANCE_TODAY {{
+      border-color: #15803d;
+      background: rgba(21, 128, 61, 0.18);
+    }}
     @media (max-width: 900px) {{
       .results-meta {{
         align-items: flex-start;
@@ -276,6 +442,8 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
     <section class="intro">
       <div><strong>How to use:</strong> start with no filters, sort by score, then look at the top rows. Use a minimum score like <strong>60</strong> or <strong>70</strong> to narrow the list. Use ticker search only when you want to inspect one symbol.</div>
     </section>
+
+    <section id="schedule-banner" class="schedule-banner"></section>
 
     <div id="summary-grid" class="grid"></div>
 
@@ -323,6 +491,14 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
       </div>
     </section>
 
+    <section class="card" style="margin-bottom: 18px;">
+      <h2>Monthly rebalance recommendation</h2>
+      <div id="rebalance-summary" class="grid" style="margin-bottom: 14px;"></div>
+      <div id="rebalance-meta" class="source-note"></div>
+      <div id="rebalance-holdings" class="table-wrap" style="margin-top: 14px;"></div>
+      <div id="rebalance-targets" class="table-wrap" style="margin-top: 14px;"></div>
+    </section>
+
     <section>
       <div class="results-meta">
         <h2 style="margin: 0;">Rankings</h2>
@@ -368,6 +544,11 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
     const refreshDot = document.getElementById("refresh-dot");
     const refreshStatus = document.getElementById("refresh-status");
     const resultsCount = document.getElementById("results-count");
+    const rebalanceSummary = document.getElementById("rebalance-summary");
+    const rebalanceMeta = document.getElementById("rebalance-meta");
+    const rebalanceHoldings = document.getElementById("rebalance-holdings");
+    const rebalanceTargets = document.getElementById("rebalance-targets");
+    const scheduleBanner = document.getElementById("schedule-banner");
 
     const searchInput = document.getElementById("search");
     const signalSelect = document.getElementById("signal");
@@ -514,6 +695,137 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
       `).join("");
     }}
 
+    function renderRebalanceSection() {{
+      const rebalance = rawData.rebalance || {{}};
+      if (!rebalance.available) {{
+        rebalanceSummary.innerHTML = `
+          <section class="card">
+            <div class="metric-label">Rebalance status</div>
+            <div class="metric-small">${{safe(rebalance.message || "No rebalance data available.")}}</div>
+          </section>
+        `;
+        rebalanceMeta.textContent = "To enable this section, add holdings.txt in the project root with one ticker per line.";
+        rebalanceHoldings.innerHTML = "";
+        rebalanceTargets.innerHTML = "";
+        return;
+      }}
+
+      const summary = rebalance.summary || {{}};
+      const schedule = rebalance.schedule || {{}};
+      const summaryCards = [
+        ["Holdings file", rebalance.holdings_source || ""],
+        ["Schedule", schedule.strategy || ""],
+        ["Status", schedule.status || ""],
+        ["Next rebalance", schedule.next_rebalance_date || ""],
+        ["Keep", summary.keep_count || 0],
+        ["Sell", summary.sell_count || 0],
+        ["Buy", summary.buy_count || 0],
+        ["Target positions", summary.target_positions_count || 0]
+      ];
+      rebalanceSummary.innerHTML = summaryCards.map(([label, value]) => `
+        <section class="card">
+          <div class="metric-label">${{safe(label)}}</div>
+          <div class="metric-small">${{safe(value)}}</div>
+        </section>
+      `).join("");
+
+      rebalanceMeta.textContent = rebalance.is_example_source
+        ? `Using sample holdings from ${{rebalance.holdings_source}}. Replace with holdings.txt for your actual portfolio.`
+        : `Using holdings from ${{rebalance.holdings_source}}.`;
+
+      const holdingsRows = Array.isArray(rebalance.current_holdings) ? rebalance.current_holdings : [];
+      rebalanceHoldings.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Holding</th>
+              <th>Action</th>
+              <th>Rank</th>
+              <th>Prev Rank</th>
+              <th>Score</th>
+              <th>Signal</th>
+              <th>Price</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${{
+              holdingsRows.length
+                ? holdingsRows.map(row => `
+                    <tr>
+                      <td>${{safe(row.ticker)}}</td>
+                      <td><span class="pill ${{safe(row.action === "BUY" ? "WATCH" : row.signal || "NEUTRAL")}}">${{safe(row.action)}}</span></td>
+                      <td>${{safe(row.rank_position)}}</td>
+                      <td>${{safe(row.previous_rank_position)}}</td>
+                      <td>${{safe(row.score)}}</td>
+                      <td><span class="pill ${{safe(row.signal || "NEUTRAL")}}">${{safe(row.signal)}}</span></td>
+                      <td>${{number(row.price)}}</td>
+                      <td>${{safe(row.reason)}}</td>
+                    </tr>
+                  `).join("")
+                : `<tr><td colspan="8" class="empty">No current holdings supplied.</td></tr>`
+            }}
+          </tbody>
+        </table>
+      `;
+
+      const targetRows = Array.isArray(rebalance.target_allocations) ? rebalance.target_allocations : [];
+      rebalanceTargets.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Target</th>
+              <th>Source</th>
+              <th>Rank</th>
+              <th>Score</th>
+              <th>Signal</th>
+              <th>Price</th>
+              <th>Weight</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${{
+              targetRows.length
+                ? targetRows.map(row => `
+                    <tr>
+                      <td>${{safe(row.ticker)}}</td>
+                      <td>${{safe(row.source)}}</td>
+                      <td>${{safe(row.rank_position)}}</td>
+                      <td>${{safe(row.score)}}</td>
+                      <td><span class="pill ${{safe(row.signal || "NEUTRAL")}}">${{safe(row.signal)}}</span></td>
+                      <td>${{number(row.price)}}</td>
+                      <td>${{number(row.target_weight_pct, 1)}}%</td>
+                    </tr>
+                  `).join("")
+                : `<tr><td colspan="7" class="empty">No target positions.</td></tr>`
+            }}
+          </tbody>
+        </table>
+      `;
+    }}
+
+    function renderScheduleBanner() {{
+      const rebalance = rawData.rebalance || {{}};
+      const schedule = rebalance.schedule || {{}};
+      const status = schedule.status || "UNKNOWN";
+      scheduleBanner.className = `schedule-banner ${{status}}`;
+
+      if (!rebalance.available) {{
+        scheduleBanner.innerHTML = `
+          <div><strong>Rotation schedule:</strong> first trading day of the month after the close</div>
+          <div class="source-note">Add holdings.txt to enable the monthly rebalance section.</div>
+        `;
+        return;
+      }}
+
+      scheduleBanner.innerHTML = `
+        <div><strong>Rotation schedule:</strong> first trading day of the month after the close</div>
+        <div style="margin-top: 6px;"><strong>Status today:</strong> ${{safe(status)}}</div>
+        <div style="margin-top: 6px;">${{safe(schedule.message || "")}}</div>
+        <div class="source-note">Last scheduled rebalance: ${{safe(schedule.last_scheduled_rebalance_date || "")}} | Next rebalance: ${{safe(schedule.next_rebalance_date || "")}}</div>
+      `;
+    }}
+
     function renderTable(filtered) {{
       resultsCount.textContent = `Showing ${{filtered.length}} of ${{allRankings.length}} symbols`;
 
@@ -588,7 +900,9 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
     }}
 
     applyDefaultFilterState();
+    renderScheduleBanner();
     renderMarketStatus();
+    renderRebalanceSection();
     renderAll();
     refreshDot.className = "status-dot ok";
     setInterval(refreshDashboardData, refreshIntervalMs);
@@ -612,6 +926,7 @@ def _render_simple_results_html(run: dict[str, Any]) -> str:
     title_suffix = f"Run {run.get('id', 'n/a')}" if run else "No data"
     rankings = run.get("rankings", []) or []
     market_status = run.get("market_status", {}) or {}
+    rebalance = run.get("rebalance", {}) or {}
 
     def fmt_percent(value: Any) -> str:
         if value is None:
@@ -680,6 +995,107 @@ def _render_simple_results_html(run: dict[str, Any]) -> str:
         if not rows
         else "".join(rows)
     )
+
+    rebalance_html = ""
+    if not rebalance.get("available"):
+        rebalance_html = f"""
+        <div class="panel">
+          <h2>Monthly rebalance recommendation</h2>
+          <p class="subtle">{html.escape(str(rebalance.get("message") or "No rebalance data available."))}</p>
+          <p class="subtle">Add <code>holdings.txt</code> in the project root with one ticker per line.</p>
+        </div>
+        """
+    else:
+        schedule = rebalance.get("schedule", {}) or {}
+        holding_rows = []
+        for row in rebalance.get("current_holdings", []) or []:
+            holding_rows.append(
+                f"""
+                <tr>
+                  <td>{html.escape(str(row.get("ticker", "")))}</td>
+                  <td>{html.escape(str(row.get("action", "")))}</td>
+                  <td>{html.escape(str(row.get("rank_position", "")))}</td>
+                  <td>{html.escape(str(row.get("previous_rank_position", "")))}</td>
+                  <td>{html.escape(str(row.get("score", "")))}</td>
+                  <td>{html.escape(str(row.get("signal", "")))}</td>
+                  <td>{fmt_number(row.get("price"))}</td>
+                  <td>{html.escape(str(row.get("reason", "")))}</td>
+                </tr>
+                """
+            )
+        target_rows = []
+        for row in rebalance.get("target_allocations", []) or []:
+            target_rows.append(
+                f"""
+                <tr>
+                  <td>{html.escape(str(row.get("ticker", "")))}</td>
+                  <td>{html.escape(str(row.get("source", "")))}</td>
+                  <td>{html.escape(str(row.get("rank_position", "")))}</td>
+                  <td>{html.escape(str(row.get("score", "")))}</td>
+                  <td>{html.escape(str(row.get("signal", "")))}</td>
+                  <td>{fmt_number(row.get("price"))}</td>
+                  <td>{float(row.get("target_weight_pct") or 0):.1f}%</td>
+                </tr>
+                """
+            )
+        source_note = (
+            f"Using sample holdings from {html.escape(str(rebalance.get('holdings_source') or ''))}. Replace with holdings.txt for your actual portfolio."
+            if rebalance.get("is_example_source")
+            else f"Using holdings from {html.escape(str(rebalance.get('holdings_source') or ''))}."
+        )
+        summary = rebalance.get("summary", {}) or {}
+        rebalance_html = f"""
+        <div class="panel">
+          <h2>Rotation schedule</h2>
+          <p><strong>Schedule:</strong> first trading day of the month after the close</p>
+          <p><strong>Status today:</strong> {html.escape(str(schedule.get("status") or ""))}</p>
+          <p>{html.escape(str(schedule.get("message") or ""))}</p>
+          <p class="subtle">Last scheduled rebalance: {html.escape(str(schedule.get("last_scheduled_rebalance_date") or ""))} | Next rebalance: {html.escape(str(schedule.get("next_rebalance_date") or ""))}</p>
+        </div>
+        <div class="panel">
+          <h2>Monthly rebalance recommendation</h2>
+          <p class="subtle">{source_note}</p>
+          <p><strong>Rules:</strong> top {html.escape(str(rebalance.get("top_n", "")))} | buy score &gt;= {html.escape(str(rebalance.get("buy_score", "")))} | sell score &lt; {html.escape(str(rebalance.get("sell_score", "")))}</p>
+          <p><strong>Counts:</strong> keep={html.escape(str(summary.get("keep_count", 0)))} | sell={html.escape(str(summary.get("sell_count", 0)))} | buy={html.escape(str(summary.get("buy_count", 0)))} | target positions={html.escape(str(summary.get("target_positions_count", 0)))}</p>
+          <div class="table-wrap" style="margin-bottom: 16px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Holding</th>
+                  <th>Action</th>
+                  <th>Rank</th>
+                  <th>Prev Rank</th>
+                  <th>Score</th>
+                  <th>Signal</th>
+                  <th>Price</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {"".join(holding_rows) if holding_rows else '<tr><td colspan="8" class="empty">No current holdings supplied.</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Target</th>
+                  <th>Source</th>
+                  <th>Rank</th>
+                  <th>Score</th>
+                  <th>Signal</th>
+                  <th>Price</th>
+                  <th>Weight</th>
+                </tr>
+              </thead>
+              <tbody>
+                {"".join(target_rows) if target_rows else '<tr><td colspan="7" class="empty">No target positions.</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        """
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -860,6 +1276,8 @@ def _render_simple_results_html(run: dict[str, Any]) -> str:
       <strong>Closes:</strong> {html.escape(str(market_status.get("closes_at", "")))}<br>
       <strong>Next open:</strong> {html.escape(str(market_status.get("next_open_at", "")))}
     </div>
+
+    {rebalance_html}
 
     <div class="table-wrap">
       <table>

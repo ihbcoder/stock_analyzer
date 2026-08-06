@@ -64,6 +64,8 @@ Generate the dashboard explicitly to the default location:
 python main.py scan stocks.json --dashboard-output site/index.html
 ```
 
+To show monthly rebalance recommendations in the generated web pages, add a `holdings.txt` file in the project root with one ticker per line. If `holdings.txt` is missing, the pages fall back to `holdings_example.txt` and label it as sample data.
+
 Serve the generated dashboard locally:
 
 ```bash
