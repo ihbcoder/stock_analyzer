@@ -40,6 +40,12 @@ Show recent saved runs and the latest rankings:
 python main.py report --db data/stock_analyzer.db
 ```
 
+Build a monthly rebalance recommendation from the latest two saved runs and a holdings file:
+
+```bash
+python main.py rebalance --db data/stock_analyzer.db --holdings-file holdings_example.txt
+```
+
 Filter the latest saved rankings by signal:
 
 ```bash
@@ -89,6 +95,7 @@ For after-close runs, use [stocks_eod.json](./stocks_eod.json). It uses the same
 - Scoring is deliberately simple and transparent.
 - SQLite is built in through Python's standard library. Each run is saved in `analysis_runs` and each ranked stock row is saved in `stock_rankings`.
 - The CLI keeps the old `python main.py stocks.json ...` flow working by treating it as `scan`.
+- `python main.py rebalance` builds a monthly keep/sell/buy report from the latest saved run, with a one-run grace period for names that just fell out of the top group.
 - When `agent.market_hours_only` is `true`, scans are skipped when the NYSE is closed, including market holidays. The saved run is marked `skipped_market_closed`.
 - Use `stocks.json` for intraday scans and `stocks_eod.json` for end-of-day or evening runs.
 - The CLI writes rotating logs by default to `logs/stock_analyzer.log`.

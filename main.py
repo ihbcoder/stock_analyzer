@@ -7,15 +7,16 @@ from pathlib import Path
 from analyzer import run_analysis
 from app_logging import configure_logging
 from dashboard import build_dashboard
-from db import get_latest_rankings, get_recent_runs, initialize_database, save_analysis_result
+from db import get_latest_rankings, get_recent_full_runs, get_recent_runs, initialize_database, save_analysis_result
 from file_writer import write_json
-from reporting import build_report_text
+from rebalance import build_rebalance_plan, load_holdings
+from reporting import build_rebalance_report_text, build_report_text
 from site_server import serve_site
 
 
 def parse_args() -> argparse.Namespace:
     argv = sys.argv[1:]
-    if argv and argv[0] not in {"scan", "report", "serve", "-h", "--help"}:
+    if argv and argv[0] not in {"scan", "report", "serve", "rebalance", "-h", "--help"}:
         argv = ["scan", *argv]
 
     parser = argparse.ArgumentParser(description="Momentum stock scanner")
@@ -73,6 +74,44 @@ def parse_args() -> argparse.Namespace:
         help="Path to log file",
     )
 
+    rebalance_parser = subparsers.add_parser("rebalance", help="Build a monthly rebalance recommendation")
+    rebalance_parser.add_argument(
+        "--db",
+        default="data/stock_analyzer.db",
+        help="Path to SQLite database file",
+    )
+    rebalance_parser.add_argument(
+        "--log",
+        default="logs/stock_analyzer.log",
+        help="Path to log file",
+    )
+    rebalance_parser.add_argument(
+        "--holdings",
+        help="Comma-separated current holdings, for example NVDA,AMZN,AMD",
+    )
+    rebalance_parser.add_argument(
+        "--holdings-file",
+        help="Path to a text file with one current holding ticker per line",
+    )
+    rebalance_parser.add_argument(
+        "--top-n",
+        type=int,
+        default=8,
+        help="Target number of positions to hold",
+    )
+    rebalance_parser.add_argument(
+        "--buy-score",
+        type=int,
+        default=70,
+        help="Minimum score required for a new buy",
+    )
+    rebalance_parser.add_argument(
+        "--sell-score",
+        type=int,
+        default=55,
+        help="Sell when a holding falls below this score",
+    )
+
     return parser.parse_args(argv)
 
 
@@ -115,6 +154,39 @@ def main() -> int:
             logger.info("Starting local server site_dir=%s host=%s port=%s", args.site_dir, args.host, args.port)
             serve_site(args.site_dir, host=args.host, port=args.port)
             logger.info("Stopped local server")
+            return 0
+
+        if args.command == "rebalance":
+            logger.info(
+                "Building rebalance recommendation db=%s holdings=%s holdings_file=%s top_n=%s buy_score=%s sell_score=%s",
+                args.db,
+                args.holdings,
+                args.holdings_file,
+                args.top_n,
+                args.buy_score,
+                args.sell_score,
+            )
+            runs = get_recent_full_runs(Path(args.db), limit=2)
+            latest_run = runs[0] if runs else None
+            previous_run = runs[1] if len(runs) > 1 else None
+            holdings = load_holdings(args.holdings, args.holdings_file)
+            report = build_rebalance_plan(
+                latest_run,
+                previous_run,
+                holdings,
+                top_n=args.top_n,
+                buy_score=args.buy_score,
+                sell_score=args.sell_score,
+            )
+            print(build_rebalance_report_text(report))
+            logger.info(
+                "Completed rebalance report latest_run_id=%s holdings=%s buy_count=%s sell_count=%s target_positions=%s",
+                report.get("latest_run_id"),
+                report.get("summary", {}).get("current_holdings_count"),
+                report.get("summary", {}).get("buy_count"),
+                report.get("summary", {}).get("sell_count"),
+                report.get("summary", {}).get("target_positions_count"),
+            )
             return 0
 
         db_path = Path(args.db)

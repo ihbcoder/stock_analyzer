@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T15:09:27.996174-04:00",
+  "generated_at": "2026-08-05T10:02:07.600954-04:00",
   "strategy": "momentum",
   "benchmark": "QQQ",
   "minimum_score": 70,
@@ -7,33 +7,212 @@
   "run_status": "success",
   "market_status": {
     "calendar": "NYSE",
-    "checked_at": "2026-07-31T15:09:27.996192-04:00",
+    "checked_at": "2026-08-05T10:02:07.600973-04:00",
     "is_open": true,
     "reason": "Market is open",
-    "opens_at": "2026-07-31T09:30:00-04:00",
-    "closes_at": "2026-07-31T16:00:00-04:00",
-    "session_date": "2026-07-31",
+    "opens_at": "2026-08-05T09:30:00-04:00",
+    "closes_at": "2026-08-05T16:00:00-04:00",
+    "session_date": "2026-08-05",
     "next_open_at": null
   },
   "rankings": [
     {
+      "ticker": "IVES",
+      "name": null,
+      "price": 38.974998474121094,
+      "score": 85,
+      "signal": "STRONG",
+      "metrics": {
+        "price": 38.974998474121094,
+        "return_5d": 0.1473357984564232,
+        "return_20d": 0.03767297787790502,
+        "return_60d": 0.0716249551482,
+        "rsi_14": 62.98436519717392,
+        "relative_volume_20": 0.3395065079212012,
+        "distance_from_52_week_high": -0.06601967645187257,
+        "macd": 0.07533272345429509,
+        "macd_signal": -0.2744641545299042,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 20-day EMA",
+        "Price is above the 50-day SMA",
+        "Price is above the 200-day SMA",
+        "Outperformed the benchmark over 20 days",
+        "Outperformed the benchmark over 60 days",
+        "Positive 5-day return",
+        "Positive 20-day return",
+        "Positive 60-day return",
+        "RSI is in a healthy momentum range",
+        "MACD is above its signal line",
+        "Trading within 10% of the 52-week high"
+      ],
+      "risk_flags": [],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "price": 220.61000061035156,
+      "score": 85,
+      "signal": "STRONG",
+      "metrics": {
+        "price": 220.61000061035156,
+        "return_5d": 0.16104419234860168,
+        "return_20d": 0.08078584111123943,
+        "return_60d": 0.025139422578200676,
+        "rsi_14": 62.37552175225971,
+        "relative_volume_20": 0.32104178744022094,
+        "distance_from_52_week_high": -0.0641808964548074,
+        "macd": 1.0091448754234023,
+        "macd_signal": -0.5440091058837897,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 20-day EMA",
+        "Price is above the 50-day SMA",
+        "Price is above the 200-day SMA",
+        "Outperformed the benchmark over 20 days",
+        "Outperformed the benchmark over 60 days",
+        "Positive 5-day return",
+        "Positive 20-day return",
+        "Positive 60-day return",
+        "RSI is in a healthy momentum range",
+        "MACD is above its signal line",
+        "Trading within 10% of the 52-week high"
+      ],
+      "risk_flags": [],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "PANW",
+      "name": null,
+      "price": 367.19000244140625,
+      "score": 85,
+      "signal": "STRONG",
+      "metrics": {
+        "price": 367.19000244140625,
+        "return_5d": 0.16883657353308457,
+        "return_20d": 0.14535701873367524,
+        "return_60d": 0.7663555600183916,
+        "rsi_14": 66.83664360613872,
+        "relative_volume_20": 0.17358375781234414,
+        "distance_from_52_week_high": 0.0,
+        "macd": 10.366935597920133,
+        "macd_signal": 9.323546658641945,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 20-day EMA",
+        "Price is above the 50-day SMA",
+        "Price is above the 200-day SMA",
+        "Outperformed the benchmark over 20 days",
+        "Outperformed the benchmark over 60 days",
+        "Positive 5-day return",
+        "Positive 20-day return",
+        "Positive 60-day return",
+        "RSI is in a healthy momentum range",
+        "MACD is above its signal line",
+        "Trading within 10% of the 52-week high"
+      ],
+      "risk_flags": [],
+      "status": "success",
+      "error": null
+    },
+    {
       "ticker": "AMZN",
       "name": null,
-      "price": 271.3900146484375,
-      "score": 77,
+      "price": 276.1099853515625,
+      "score": 75,
       "signal": "WATCH",
       "metrics": {
-        "price": 271.3900146484375,
-        "return_5d": 0.1692301664503728,
-        "return_20d": 0.11835009146659115,
-        "return_60d": -0.007896082035894647,
-        "rsi_14": 67.80722411867444,
-        "relative_volume_20": 2.2437909296875884,
-        "distance_from_52_week_high": -0.013091296824547016,
-        "macd": -0.6382167263274141,
-        "macd_signal": -1.8386286569031647,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 276.1099853515625,
+        "return_5d": 0.21822189625854338,
+        "return_20d": 0.13336339744505166,
+        "return_60d": 0.01257882047789094,
+        "rsi_14": 66.02666346891138,
+        "relative_volume_20": 0.1628297828175815,
+        "distance_from_52_week_high": -0.027850165368919155,
+        "macd": 6.274793871864546,
+        "macd_signal": 1.4347876680357623,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 20-day EMA",
+        "Price is above the 50-day SMA",
+        "Price is above the 200-day SMA",
+        "Outperformed the benchmark over 20 days",
+        "Positive 5-day return",
+        "Positive 20-day return",
+        "Positive 60-day return",
+        "RSI is in a healthy momentum range",
+        "MACD is above its signal line",
+        "Trading within 10% of the 52-week high"
+      ],
+      "risk_flags": [],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "PLTR",
+      "name": null,
+      "price": 162.24000549316406,
+      "score": 69,
+      "signal": "NEUTRAL",
+      "metrics": {
+        "price": 162.24000549316406,
+        "return_5d": 0.31902443490377297,
+        "return_20d": 0.22704586292017348,
+        "return_60d": 0.1773585043552326,
+        "rsi_14": 72.37500332417072,
+        "relative_volume_20": 0.40464876043402,
+        "distance_from_52_week_high": -0.21691277522605368,
+        "macd": 3.8580511210853103,
+        "macd_signal": 0.3414682907187659,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 20-day EMA",
+        "Price is above the 50-day SMA",
+        "Price is above the 200-day SMA",
+        "Outperformed the benchmark over 20 days",
+        "Outperformed the benchmark over 60 days",
+        "Positive 5-day return",
+        "Positive 20-day return",
+        "Positive 60-day return",
+        "MACD is above its signal line"
+      ],
+      "risk_flags": [
+        "Price is more than 15% above the 20-day EMA"
+      ],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "GOOGL",
+      "name": null,
+      "price": 378.2500915527344,
+      "score": 67,
+      "signal": "NEUTRAL",
+      "metrics": {
+        "price": 378.2500915527344,
+        "return_5d": 0.1233705596859258,
+        "return_20d": 0.04512068280042958,
+        "return_60d": -0.05626221788180896,
+        "rsi_14": 62.773230178601366,
+        "relative_volume_20": 0.12533254468379454,
+        "distance_from_52_week_high": -0.06052829928965642,
+        "macd": 1.8470729657960305,
+        "macd_signal": -3.4771347381986724,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
         "Price is above the 20-day EMA",
@@ -44,7 +223,6 @@
         "Positive 20-day return",
         "RSI is in a healthy momentum range",
         "MACD is above its signal line",
-        "Volume is above the 20-day average",
         "Trading within 10% of the 52-week high"
       ],
       "risk_flags": [],
@@ -52,59 +230,23 @@
       "error": null
     },
     {
-      "ticker": "LCID",
+      "ticker": "NBIS",
       "name": null,
-      "price": 7.419600009918213,
-      "score": 66,
-      "signal": "NEUTRAL",
-      "metrics": {
-        "price": 7.419600009918213,
-        "return_5d": 0.17771425163286447,
-        "return_20d": 0.22032896431281657,
-        "return_60d": 0.18713600158691412,
-        "rsi_14": 57.304943260093175,
-        "relative_volume_20": 0.22139806681517143,
-        "distance_from_52_week_high": -0.7004602392894714,
-        "macd": 0.4687418822199909,
-        "macd_signal": 0.33050909532904216,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "Price is above the 20-day EMA",
-        "Price is above the 50-day SMA",
-        "Outperformed the benchmark over 20 days",
-        "Outperformed the benchmark over 60 days",
-        "Positive 5-day return",
-        "Positive 20-day return",
-        "Positive 60-day return",
-        "RSI is in a healthy momentum range",
-        "MACD is above its signal line"
-      ],
-      "risk_flags": [
-        "Far below the 52-week high"
-      ],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "WDC",
-      "name": null,
-      "price": 551.260009765625,
+      "price": 222.88999938964844,
       "score": 61,
       "signal": "NEUTRAL",
       "metrics": {
-        "price": 551.260009765625,
-        "return_5d": 0.060523321876618574,
-        "return_20d": 0.022745843721011072,
-        "return_60d": 0.18484287966920387,
-        "rsi_14": 51.78650862783065,
-        "relative_volume_20": 1.0177353373501972,
-        "distance_from_52_week_high": -0.2612733015372193,
-        "macd": -15.90053374416732,
-        "macd_signal": -16.256280977799545,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 222.88999938964844,
+        "return_5d": 0.5037781510861001,
+        "return_20d": 0.02961014314771604,
+        "return_60d": 0.25890988730731634,
+        "rsi_14": 54.46840108036534,
+        "relative_volume_20": 0.16175118435493818,
+        "distance_from_52_week_high": -0.22254003456153748,
+        "macd": -4.050626915341951,
+        "macd_signal": -8.813727797913836,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
         "Price is above the 20-day EMA",
@@ -114,73 +256,6 @@
         "Positive 5-day return",
         "Positive 20-day return",
         "Positive 60-day return",
-        "MACD is above its signal line"
-      ],
-      "risk_flags": [
-        "Far below the 52-week high"
-      ],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "PANW",
-      "name": null,
-      "price": 331.0198974609375,
-      "score": 58,
-      "signal": "NEUTRAL",
-      "metrics": {
-        "price": 331.0198974609375,
-        "return_5d": 0.022328943837723658,
-        "return_20d": -0.04895736429690589,
-        "return_60d": 0.7992167906730132,
-        "rsi_14": 54.22950329354626,
-        "relative_volume_20": 0.4604641853549906,
-        "distance_from_52_week_high": -0.07711635937231187,
-        "macd": 5.106161861617011,
-        "macd_signal": 9.89993348249131,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "Price is above the 20-day EMA",
-        "Price is above the 50-day SMA",
-        "Price is above the 200-day SMA",
-        "Outperformed the benchmark over 60 days",
-        "Positive 5-day return",
-        "Positive 60-day return",
-        "Trading within 10% of the 52-week high"
-      ],
-      "risk_flags": [],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "ZM",
-      "name": null,
-      "price": 95.80000305175781,
-      "score": 57,
-      "signal": "NEUTRAL",
-      "metrics": {
-        "price": 95.80000305175781,
-        "return_5d": 0.08876014748949212,
-        "return_20d": 0.09931730727056065,
-        "return_60d": -0.12190646753783496,
-        "rsi_14": 60.40765988452473,
-        "relative_volume_20": 0.8034200451606508,
-        "distance_from_52_week_high": -0.1437253717949024,
-        "macd": 0.3381372048541067,
-        "macd_signal": -0.5034123280104716,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "Price is above the 20-day EMA",
-        "Price is above the 50-day SMA",
-        "Price is above the 200-day SMA",
-        "Outperformed the benchmark over 20 days",
-        "Positive 5-day return",
-        "Positive 20-day return",
-        "RSI is in a healthy momentum range",
         "MACD is above its signal line"
       ],
       "risk_flags": [],
@@ -190,28 +265,30 @@
     {
       "ticker": "AVGO",
       "name": "Broadcom Inc.",
-      "price": 387.9100036621094,
-      "score": 43,
-      "signal": "WEAK",
+      "price": 421.17999267578125,
+      "score": 57,
+      "signal": "NEUTRAL",
       "metrics": {
-        "price": 387.9100036621094,
-        "return_5d": 0.015683886740091912,
-        "return_20d": 0.07618252330452391,
-        "return_60d": -0.09231089255349934,
-        "rsi_14": 50.91960913615297,
-        "relative_volume_20": 0.550299349866362,
-        "distance_from_52_week_high": -0.19448886400238885,
-        "macd": -1.7871156024062884,
-        "macd_signal": -2.5950727112338146,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 421.17999267578125,
+        "return_5d": 0.13734063605975821,
+        "return_20d": 0.08358843816486572,
+        "return_60d": -0.02051164494004365,
+        "rsi_14": 62.659177777372335,
+        "relative_volume_20": 0.1558029391218793,
+        "distance_from_52_week_high": -0.12540235839018876,
+        "macd": 4.110123955399786,
+        "macd_signal": -0.3253718440530202,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
         "Price is above the 20-day EMA",
+        "Price is above the 50-day SMA",
         "Price is above the 200-day SMA",
         "Outperformed the benchmark over 20 days",
         "Positive 5-day return",
         "Positive 20-day return",
+        "RSI is in a healthy momentum range",
         "MACD is above its signal line"
       ],
       "risk_flags": [],
@@ -219,30 +296,66 @@
       "error": null
     },
     {
-      "ticker": "IVES",
+      "ticker": "COHR",
       "name": null,
-      "price": 36.05500030517578,
-      "score": 42,
-      "signal": "WEAK",
+      "price": 341.739990234375,
+      "score": 57,
+      "signal": "NEUTRAL",
       "metrics": {
-        "price": 36.05500030517578,
-        "return_5d": 0.03014286586216519,
-        "return_20d": -0.03285940220581196,
-        "return_60d": 0.05454816476681201,
-        "rsi_14": 47.924104991379096,
-        "relative_volume_20": 0.3020061052911994,
-        "distance_from_52_week_high": -0.13599327340793976,
-        "macd": -0.5608084884805749,
-        "macd_signal": -0.4242267099270399,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 341.739990234375,
+        "return_5d": 0.5390226774944855,
+        "return_20d": 0.07787416304058858,
+        "return_60d": 0.019328223706967185,
+        "rsi_14": 57.255121949266666,
+        "relative_volume_20": 0.29498456955816893,
+        "distance_from_52_week_high": -0.19946595491156482,
+        "macd": -13.066891042939346,
+        "macd_signal": -21.196485843334003,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
+        "Price is above the 20-day EMA",
         "Price is above the 200-day SMA",
         "Outperformed the benchmark over 20 days",
-        "Outperformed the benchmark over 60 days",
         "Positive 5-day return",
-        "Positive 60-day return"
+        "Positive 20-day return",
+        "Positive 60-day return",
+        "RSI is in a healthy momentum range",
+        "MACD is above its signal line"
+      ],
+      "risk_flags": [],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "ZM",
+      "name": null,
+      "price": 99.73999786376953,
+      "score": 57,
+      "signal": "NEUTRAL",
+      "metrics": {
+        "price": 99.73999786376953,
+        "return_5d": 0.07932035397879389,
+        "return_20d": 0.14118988698457624,
+        "return_60d": -0.08671368281377045,
+        "rsi_14": 63.23686380886687,
+        "relative_volume_20": 0.12147257372680832,
+        "distance_from_52_week_high": -0.10850911411939235,
+        "macd": 1.9784623948839481,
+        "macd_signal": 0.5147508026788314,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 20-day EMA",
+        "Price is above the 50-day SMA",
+        "Price is above the 200-day SMA",
+        "Outperformed the benchmark over 20 days",
+        "Positive 5-day return",
+        "Positive 20-day return",
+        "RSI is in a healthy momentum range",
+        "MACD is above its signal line"
       ],
       "risk_flags": [],
       "status": "success",
@@ -251,23 +364,25 @@
     {
       "ticker": "LLY",
       "name": null,
-      "price": 1146.385009765625,
-      "score": 37,
+      "price": 1186.2900390625,
+      "score": 53,
       "signal": "WEAK",
       "metrics": {
-        "price": 1146.385009765625,
-        "return_5d": -0.04150817146324948,
-        "return_20d": -0.05562605342470317,
-        "return_60d": 0.15928788963788,
-        "rsi_14": 45.352609028146105,
-        "relative_volume_20": 0.7662391720831161,
-        "distance_from_52_week_high": -0.07217378726989554,
-        "macd": 8.649380019871842,
-        "macd_signal": 14.604850809157341,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 1186.2900390625,
+        "return_5d": -0.01961122963729378,
+        "return_20d": -0.024296092430592164,
+        "return_60d": 0.25076706604918275,
+        "rsi_14": 53.86315686187873,
+        "relative_volume_20": 0.5927477704760304,
+        "distance_from_52_week_high": -0.039876669036490675,
+        "macd": 0.9384717603577428,
+        "macd_signal": 7.969025310933925,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
+        "Price is above the 20-day EMA",
+        "Price is above the 50-day SMA",
         "Price is above the 200-day SMA",
         "Outperformed the benchmark over 60 days",
         "Positive 60-day return",
@@ -278,88 +393,32 @@
       "error": null
     },
     {
-      "ticker": "GOOGL",
+      "ticker": "WDC",
       "name": null,
-      "price": 355.29998779296875,
-      "score": 36,
+      "price": 554.0449829101562,
+      "score": 51,
       "signal": "WEAK",
       "metrics": {
-        "price": 355.29998779296875,
-        "return_5d": 0.11121535824320139,
-        "return_20d": -0.012808801706630568,
-        "return_60d": -0.08529208739672633,
-        "rsi_14": 53.94332170484487,
-        "relative_volume_20": 1.020489728334023,
-        "distance_from_52_week_high": -0.11753019695518518,
-        "macd": -6.209129988862571,
-        "macd_signal": -6.638578447936675,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 554.0449829101562,
+        "return_5d": 0.19912772198013928,
+        "return_20d": 0.00680537016220395,
+        "return_60d": 0.15426038106282558,
+        "rsi_14": 52.29639667519668,
+        "relative_volume_20": 0.1606368859642158,
+        "distance_from_52_week_high": -0.25754124410529755,
+        "macd": -8.27137188245024,
+        "macd_signal": -13.726581199873749,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
         "Price is above the 20-day EMA",
         "Price is above the 200-day SMA",
-        "Outperformed the benchmark over 20 days",
-        "Positive 5-day return",
-        "MACD is above its signal line"
-      ],
-      "risk_flags": [],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "NVDA",
-      "name": "NVIDIA Corporation",
-      "price": 198.41000366210938,
-      "score": 34,
-      "signal": "WEAK",
-      "metrics": {
-        "price": 198.41000366210938,
-        "return_5d": -0.040756105323122016,
-        "return_20d": 0.01837500280967541,
-        "return_60d": 0.009720120417859412,
-        "rsi_14": 46.27586996417766,
-        "relative_volume_20": 0.6380857517074986,
-        "distance_from_52_week_high": -0.15835242623737522,
-        "macd": -2.1421658768386465,
-        "macd_signal": -1.031784170507632,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "Price is above the 200-day SMA",
-        "Outperformed the benchmark over 20 days",
-        "Positive 20-day return",
-        "Positive 60-day return"
-      ],
-      "risk_flags": [],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "NBIS",
-      "name": null,
-      "price": 189.80999755859375,
-      "score": 32,
-      "signal": "WEAK",
-      "metrics": {
-        "price": 189.80999755859375,
-        "return_5d": 0.010864319325320615,
-        "return_20d": -0.11970131779553306,
-        "return_60d": 0.07895634114496253,
-        "rsi_14": 46.53053069876007,
-        "relative_volume_20": 0.9903342780411134,
-        "distance_from_52_week_high": -0.3379259969228011,
-        "macd": -12.577731621838723,
-        "macd_signal": -11.16613985505639,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "Price is above the 200-day SMA",
         "Outperformed the benchmark over 60 days",
         "Positive 5-day return",
-        "Positive 60-day return"
+        "Positive 20-day return",
+        "Positive 60-day return",
+        "MACD is above its signal line"
       ],
       "risk_flags": [
         "Far below the 52-week high"
@@ -368,85 +427,64 @@
       "error": null
     },
     {
-      "ticker": "TSM",
+      "ticker": "LCID",
       "name": null,
-      "price": 405.32000732421875,
-      "score": 32,
+      "price": 6.699900150299072,
+      "score": 47,
       "signal": "WEAK",
       "metrics": {
-        "price": 405.32000732421875,
-        "return_5d": 0.004734646252622765,
-        "return_20d": -0.06642711464581552,
-        "return_60d": 0.02766157947518999,
-        "rsi_14": 46.6047021441876,
-        "relative_volume_20": 0.6337673492726521,
-        "distance_from_52_week_high": -0.15128672004510957,
-        "macd": -9.128427663201535,
-        "macd_signal": -7.076980002316151,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 6.699900150299072,
+        "return_5d": -0.15830400525239718,
+        "return_20d": 0.15118555888057972,
+        "return_60d": 0.05676655978695466,
+        "rsi_14": 49.399454606967105,
+        "relative_volume_20": 0.12221976459261796,
+        "distance_from_52_week_high": -0.729515541926479,
+        "macd": 0.4068247565535392,
+        "macd_signal": 0.38990080540752026,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
-        "Price is above the 200-day SMA",
+        "Price is above the 50-day SMA",
+        "Outperformed the benchmark over 20 days",
         "Outperformed the benchmark over 60 days",
-        "Positive 5-day return",
-        "Positive 60-day return"
+        "Positive 20-day return",
+        "Positive 60-day return",
+        "MACD is above its signal line"
       ],
-      "risk_flags": [],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "AMD",
-      "name": "Advanced Micro Devices, Inc.",
-      "price": 486.06500244140625,
-      "score": 27,
-      "signal": "WEAK",
-      "metrics": {
-        "price": 486.06500244140625,
-        "return_5d": -0.0687518132510192,
-        "return_20d": -0.061324407001774994,
-        "return_60d": 0.3681950939597085,
-        "rsi_14": 46.62466822190188,
-        "relative_volume_20": 0.6979160583755886,
-        "distance_from_52_week_high": -0.1632696546587391,
-        "macd": -9.53373303074494,
-        "macd_signal": -1.162800675731145,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "Price is above the 200-day SMA",
-        "Outperformed the benchmark over 60 days",
-        "Positive 60-day return"
+      "risk_flags": [
+        "Far below the 52-week high"
       ],
-      "risk_flags": [],
       "status": "success",
       "error": null
     },
     {
       "ticker": "ARM",
       "name": null,
-      "price": 243.3175048828125,
-      "score": 27,
+      "price": 277.3299865722656,
+      "score": 44,
       "signal": "WEAK",
       "metrics": {
-        "price": 243.3175048828125,
-        "return_5d": -0.0641994702352392,
-        "return_20d": -0.22824947403929596,
-        "return_60d": 0.16509054371529164,
-        "rsi_14": 38.442515093142546,
-        "relative_volume_20": 0.8790816976317566,
-        "distance_from_52_week_high": -0.4463261511538882,
-        "macd": -22.472955339945543,
-        "macd_signal": -18.501261724239637,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 277.3299865722656,
+        "return_5d": 0.23318060974227106,
+        "return_20d": -0.07630563684812686,
+        "return_60d": 0.30037033345751474,
+        "rsi_14": 48.97713247756552,
+        "relative_volume_20": 0.15458839110958755,
+        "distance_from_52_week_high": -0.3689300688010083,
+        "macd": -16.591512728297573,
+        "macd_signal": -18.832379490025886,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
+        "Price is above the 20-day EMA",
         "Price is above the 200-day SMA",
         "Outperformed the benchmark over 60 days",
-        "Positive 60-day return"
+        "Positive 5-day return",
+        "Positive 60-day return",
+        "MACD is above its signal line"
       ],
       "risk_flags": [
         "Far below the 52-week high"
@@ -457,26 +495,29 @@
     {
       "ticker": "LRCX",
       "name": null,
-      "price": 300.18499755859375,
-      "score": 27,
+      "price": 319.2099914550781,
+      "score": 44,
       "signal": "WEAK",
       "metrics": {
-        "price": 300.18499755859375,
-        "return_5d": -0.016464054379504045,
-        "return_20d": -0.14576991425881525,
-        "return_60d": 0.08841555781333033,
-        "rsi_14": 45.12761512685006,
-        "relative_volume_20": 0.7043655606317427,
-        "distance_from_52_week_high": -0.30726004001448803,
-        "macd": -17.083277113175825,
-        "macd_signal": -13.043228836460186,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 319.2099914550781,
+        "return_5d": 0.2649494104792536,
+        "return_20d": -0.041843021752351106,
+        "return_60d": 0.08556369565239952,
+        "rsi_14": 50.37589607122883,
+        "relative_volume_20": 0.1413382783966342,
+        "distance_from_52_week_high": -0.2633558688608224,
+        "macd": -11.868675324205071,
+        "macd_signal": -13.546032208847258,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
+        "Price is above the 20-day EMA",
         "Price is above the 200-day SMA",
         "Outperformed the benchmark over 60 days",
-        "Positive 60-day return"
+        "Positive 5-day return",
+        "Positive 60-day return",
+        "MACD is above its signal line"
       ],
       "risk_flags": [
         "Far below the 52-week high"
@@ -487,26 +528,93 @@
     {
       "ticker": "MRVL",
       "name": null,
-      "price": 192.47000122070312,
-      "score": 27,
+      "price": 217.49000549316406,
+      "score": 44,
       "signal": "WEAK",
       "metrics": {
-        "price": 192.47000122070312,
-        "return_5d": -0.009061393943007756,
-        "return_20d": -0.21533692164855145,
-        "return_60d": 0.14056297019675923,
-        "rsi_14": 43.332492771668825,
-        "relative_volume_20": 0.8295211200727798,
-        "distance_from_52_week_high": -0.39174539179062373,
-        "macd": -17.416290082763396,
-        "macd_signal": -15.387310723077395,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 217.49000549316406,
+        "return_5d": 0.3310282351108671,
+        "return_20d": -0.061369819207950926,
+        "return_60d": 0.2783753556168629,
+        "rsi_14": 51.82482632860779,
+        "relative_volume_20": 0.1655427009178523,
+        "distance_from_52_week_high": -0.3126757560051917,
+        "macd": -10.763926401082841,
+        "macd_signal": -14.316080928845876,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
+        "Price is above the 20-day EMA",
         "Price is above the 200-day SMA",
         "Outperformed the benchmark over 60 days",
-        "Positive 60-day return"
+        "Positive 5-day return",
+        "Positive 60-day return",
+        "MACD is above its signal line"
+      ],
+      "risk_flags": [
+        "Far below the 52-week high"
+      ],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "TSM",
+      "name": null,
+      "price": 421.97149658203125,
+      "score": 44,
+      "signal": "WEAK",
+      "metrics": {
+        "price": 421.97149658203125,
+        "return_5d": 0.126248382467417,
+        "return_20d": -0.034345997590188304,
+        "return_60d": 0.024998795397752183,
+        "rsi_14": 52.772114974012155,
+        "relative_volume_20": 0.18942883053206566,
+        "distance_from_52_week_high": -0.11641960317755484,
+        "macd": -5.205379988063385,
+        "macd_signal": -6.8596189733042054,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 20-day EMA",
+        "Price is above the 200-day SMA",
+        "Outperformed the benchmark over 60 days",
+        "Positive 5-day return",
+        "Positive 60-day return",
+        "MACD is above its signal line"
+      ],
+      "risk_flags": [],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "CRWV",
+      "name": null,
+      "price": 92.31999969482422,
+      "score": 40,
+      "signal": "WEAK",
+      "metrics": {
+        "price": 92.31999969482422,
+        "return_5d": 0.5179217388697333,
+        "return_20d": 0.025777774386935848,
+        "return_60d": -0.19123961050588,
+        "rsi_14": 57.21571229581912,
+        "relative_volume_20": 0.16552566778563907,
+        "distance_from_52_week_high": -0.379361346589417,
+        "macd": -2.529869937561415,
+        "macd_signal": -5.522149618150818,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 20-day EMA",
+        "Outperformed the benchmark over 20 days",
+        "Positive 5-day return",
+        "Positive 20-day return",
+        "RSI is in a healthy momentum range",
+        "MACD is above its signal line"
       ],
       "risk_flags": [
         "Far below the 52-week high"
@@ -517,25 +625,27 @@
     {
       "ticker": "MU",
       "name": null,
-      "price": 837.9500122070312,
-      "score": 27,
+      "price": 906.7567749023438,
+      "score": 40,
       "signal": "WEAK",
       "metrics": {
-        "price": 837.9500122070312,
-        "return_5d": -0.09012432694483907,
-        "return_20d": -0.1410574292672322,
-        "return_60d": 0.30888784165791394,
-        "rsi_14": 44.414726291080505,
-        "relative_volume_20": 0.9808693668005292,
-        "distance_from_52_week_high": -0.30951088388815995,
-        "macd": -36.215383405653256,
-        "macd_signal": -22.822083172210576,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 906.7567749023438,
+        "return_5d": 0.22700510812225128,
+        "return_20d": -0.044311987174897594,
+        "return_60d": 0.21417332101422604,
+        "rsi_14": 49.77246850542029,
+        "relative_volume_20": 0.17355304927021387,
+        "distance_from_52_week_high": -0.2528126082584854,
+        "macd": -29.042066685410532,
+        "macd_signal": -28.014980441701503,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
+        "Price is above the 20-day EMA",
         "Price is above the 200-day SMA",
         "Outperformed the benchmark over 60 days",
+        "Positive 5-day return",
         "Positive 60-day return"
       ],
       "risk_flags": [
@@ -545,169 +655,31 @@
       "error": null
     },
     {
-      "ticker": "FRMI",
+      "ticker": "QBTS",
       "name": null,
-      "price": 5.880000114440918,
-      "score": 18,
+      "price": 21.61009979248047,
+      "score": 40,
       "signal": "WEAK",
       "metrics": {
-        "price": 5.880000114440918,
-        "return_5d": -0.20540540018074704,
-        "return_20d": -0.2704714878016661,
-        "return_60d": 0.19028341018873585,
-        "rsi_14": 42.48275706972396,
-        "relative_volume_20": 0.9646999134665619,
-        "distance_from_52_week_high": null,
-        "macd": -0.29122228293825625,
-        "macd_signal": -0.23816491826580055,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 21.61009979248047,
+        "return_5d": 0.3356056480152021,
+        "return_20d": 0.04700098989918411,
+        "return_60d": -0.04252990320437955,
+        "rsi_14": 56.54635571241167,
+        "relative_volume_20": 0.23031093747240067,
+        "distance_from_52_week_high": -0.517416248736669,
+        "macd": -0.4245071821222126,
+        "macd_signal": -1.0982691920628955,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
-        "Outperformed the benchmark over 60 days",
-        "Positive 60-day return"
-      ],
-      "risk_flags": [],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "HOOD",
-      "name": null,
-      "price": 88.19000244140625,
-      "score": 18,
-      "signal": "WEAK",
-      "metrics": {
-        "price": 88.19000244140625,
-        "return_5d": -0.07080392963240323,
-        "return_20d": -0.2176882833740995,
-        "return_60d": 0.1448786685572272,
-        "rsi_14": 38.10479956700795,
-        "relative_volume_20": 0.8067941550060027,
-        "distance_from_52_week_high": -0.42155320374005456,
-        "macd": -2.85418488202977,
-        "macd_signal": -0.002950253331406416,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "Outperformed the benchmark over 60 days",
-        "Positive 60-day return"
-      ],
-      "risk_flags": [
-        "Far below the 52-week high"
-      ],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "BBAI",
-      "name": null,
-      "price": 2.75,
-      "score": 14,
-      "signal": "WEAK",
-      "metrics": {
-        "price": 2.75,
-        "return_5d": -0.003623184962974757,
-        "return_20d": -0.22096316649053183,
-        "return_60d": -0.33574877084852484,
-        "rsi_14": 35.89634689216521,
-        "relative_volume_20": 1.2547967101501043,
-        "distance_from_52_week_high": -0.6913580194057207,
-        "macd": -0.25802653785104024,
-        "macd_signal": -0.27050285804229857,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "MACD is above its signal line",
-        "Volume is above the 20-day average"
-      ],
-      "risk_flags": [
-        "Far below the 52-week high"
-      ],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "BE",
-      "name": null,
-      "price": 213.1649932861328,
-      "score": 14,
-      "signal": "WEAK",
-      "metrics": {
-        "price": 213.1649932861328,
-        "return_5d": 0.15292873595015766,
-        "return_20d": -0.2130939430795208,
-        "return_60d": -0.27801865102071865,
-        "rsi_14": 46.575304979147866,
-        "relative_volume_20": 1.0386057536706834,
-        "distance_from_52_week_high": -0.38364901106194904,
-        "macd": -21.331342962363436,
-        "macd_signal": -20.547985165783658,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "Price is above the 200-day SMA",
-        "Positive 5-day return"
-      ],
-      "risk_flags": [
-        "Far below the 52-week high"
-      ],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "INTC",
-      "name": null,
-      "price": 92.4656982421875,
-      "score": 14,
-      "signal": "WEAK",
-      "metrics": {
-        "price": 92.4656982421875,
-        "return_5d": 0.0015781905095852977,
-        "return_20d": -0.23169339913144715,
-        "return_60d": -0.14502360667963887,
-        "rsi_14": 41.708152385042524,
-        "relative_volume_20": 0.6814302250142389,
-        "distance_from_52_week_high": -0.3439357411631324,
-        "macd": -7.328568688770588,
-        "macd_signal": -6.216675139533582,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "Price is above the 200-day SMA",
-        "Positive 5-day return"
-      ],
-      "risk_flags": [
-        "Far below the 52-week high"
-      ],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "VRT",
-      "name": null,
-      "price": 244.74000549316406,
-      "score": 10,
-      "signal": "WEAK",
-      "metrics": {
-        "price": 244.74000549316406,
-        "return_5d": -0.1571152436971045,
-        "return_20d": -0.18563868336852407,
-        "return_60d": -0.2823294429132359,
-        "rsi_14": 36.01638378714037,
-        "relative_volume_20": 1.3483549984017935,
-        "distance_from_52_week_high": -0.3494936651875501,
-        "macd": -17.880219146680247,
-        "macd_signal": -10.67962795996378,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "Volume is above the 20-day average"
+        "Price is above the 20-day EMA",
+        "Outperformed the benchmark over 20 days",
+        "Positive 5-day return",
+        "Positive 20-day return",
+        "RSI is in a healthy momentum range",
+        "MACD is above its signal line"
       ],
       "risk_flags": [
         "Far below the 52-week high"
@@ -718,105 +690,113 @@
     {
       "ticker": "CAT",
       "name": null,
-      "price": 819.9199829101562,
-      "score": 9,
+      "price": 901.97998046875,
+      "score": 34,
       "signal": "WEAK",
       "metrics": {
-        "price": 819.9199829101562,
-        "return_5d": -0.07742508868925602,
-        "return_20d": -0.14904574016392258,
-        "return_60d": -0.09360046145947698,
-        "rsi_14": 37.31708895616249,
-        "relative_volume_20": 0.5012469978191191,
-        "distance_from_52_week_high": -0.2300498036317551,
-        "macd": -32.81417478294691,
-        "macd_signal": -21.705092275346807,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 901.97998046875,
+        "return_5d": 0.15238077339996092,
+        "return_20d": -0.04862462639239984,
+        "return_60d": 0.005047599532121527,
+        "rsi_14": 52.44121568663142,
+        "relative_volume_20": 0.161252145126601,
+        "distance_from_52_week_high": -0.15299092892307486,
+        "macd": -22.84298060998549,
+        "macd_signal": -24.51039410187107,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
-        "Price is above the 200-day SMA"
+        "Price is above the 20-day EMA",
+        "Price is above the 200-day SMA",
+        "Positive 5-day return",
+        "Positive 60-day return",
+        "MACD is above its signal line"
       ],
       "risk_flags": [],
       "status": "success",
       "error": null
     },
     {
-      "ticker": "CIEN",
-      "name": null,
-      "price": 380.625,
-      "score": 9,
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices, Inc.",
+      "price": 488.2699890136719,
+      "score": 32,
       "signal": "WEAK",
       "metrics": {
-        "price": 380.625,
-        "return_5d": -0.026434908126054757,
-        "return_20d": -0.09902710860497332,
-        "return_60d": -0.30128499311610835,
-        "rsi_14": 43.23181826259965,
-        "relative_volume_20": 0.6898594563691847,
-        "distance_from_52_week_high": -0.39294258373205737,
-        "macd": -27.244111979602792,
-        "macd_signal": -25.900043563099803,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 488.2699890136719,
+        "return_5d": 0.1366747178246499,
+        "return_20d": -0.05631894560084083,
+        "return_60d": 0.07267291986827806,
+        "rsi_14": 47.49514982091454,
+        "relative_volume_20": 0.5972145555124604,
+        "distance_from_52_week_high": -0.15947390889054402,
+        "macd": -7.750622785028213,
+        "macd_signal": -4.771016953506189,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
-        "Price is above the 200-day SMA"
+        "Price is above the 200-day SMA",
+        "Outperformed the benchmark over 60 days",
+        "Positive 5-day return",
+        "Positive 60-day return"
       ],
-      "risk_flags": [
-        "Far below the 52-week high"
-      ],
+      "risk_flags": [],
       "status": "success",
       "error": null
     },
     {
-      "ticker": "COHR",
+      "ticker": "GEV",
       "name": null,
-      "price": 265.7900085449219,
-      "score": 9,
+      "price": 1025.3199462890625,
+      "score": 30,
       "signal": "WEAK",
       "metrics": {
-        "price": 265.7900085449219,
-        "return_5d": -0.058783969837537864,
-        "return_20d": -0.2026937238294546,
-        "return_60d": -0.20832216409826532,
-        "rsi_14": 41.13632821734516,
-        "relative_volume_20": 0.8517582286599553,
-        "distance_from_52_week_high": -0.37738059119557643,
-        "macd": -27.52446428335196,
-        "macd_signal": -24.127033754567556,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 1025.3199462890625,
+        "return_5d": 0.13889002635085057,
+        "return_20d": -0.04264282986932311,
+        "return_60d": -0.014257633780621282,
+        "rsi_14": 50.4043839777306,
+        "relative_volume_20": 0.08723442413276068,
+        "distance_from_52_week_high": -0.1272832856059456,
+        "macd": -14.530507890875128,
+        "macd_signal": -14.068359806682436,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
-        "Price is above the 200-day SMA"
+        "Price is above the 20-day EMA",
+        "Price is above the 50-day SMA",
+        "Price is above the 200-day SMA",
+        "Positive 5-day return"
       ],
-      "risk_flags": [
-        "Far below the 52-week high"
-      ],
+      "risk_flags": [],
       "status": "success",
       "error": null
     },
     {
-      "ticker": "CRWV",
+      "ticker": "BE",
       "name": null,
-      "price": 72.19999694824219,
-      "score": 9,
+      "price": 236.65499877929688,
+      "score": 26,
       "signal": "WEAK",
       "metrics": {
-        "price": 72.19999694824219,
-        "return_5d": 0.004451860142621333,
-        "return_20d": -0.11676561841866162,
-        "return_60d": -0.4354523630243591,
-        "rsi_14": 41.879875711246214,
-        "relative_volume_20": 0.8071895150632653,
-        "distance_from_52_week_high": -0.5146218692555147,
-        "macd": -7.094423485914973,
-        "macd_signal": -7.1430753093176484,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 236.65499877929688,
+        "return_5d": 0.445221366591126,
+        "return_20d": -0.06934993500508158,
+        "return_60d": -0.093380071692868,
+        "rsi_14": 52.38522909995374,
+        "relative_volume_20": 0.17251930764207526,
+        "distance_from_52_week_high": -0.31572937804585677,
+        "macd": -12.683138939936498,
+        "macd_signal": -18.133786224973576,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
+        "Price is above the 20-day EMA",
+        "Price is above the 200-day SMA",
         "Positive 5-day return",
         "MACD is above its signal line"
       ],
@@ -827,51 +807,236 @@
       "error": null
     },
     {
-      "ticker": "GEV",
+      "ticker": "CIEN",
       "name": null,
-      "price": 993.5599975585938,
-      "score": 9,
+      "price": 417.94500732421875,
+      "score": 26,
       "signal": "WEAK",
       "metrics": {
-        "price": 993.5599975585938,
-        "return_5d": -0.020881993044007174,
-        "return_20d": -0.10740177463704115,
-        "return_60d": -0.0928132202996893,
-        "rsi_14": 46.70391524402432,
-        "relative_volume_20": 0.5620265780025784,
-        "distance_from_52_week_high": -0.15431625049236564,
-        "macd": -22.405108742049833,
-        "macd_signal": -11.151835511066666,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 417.94500732421875,
+        "return_5d": 0.26508161607099634,
+        "return_20d": -0.05221442237056051,
+        "return_60d": -0.23747966923801767,
+        "rsi_14": 51.44488875885818,
+        "relative_volume_20": 0.09485501696983185,
+        "distance_from_52_week_high": -0.3334210409502093,
+        "macd": -17.04414974427749,
+        "macd_signal": -23.235834767514724,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
-        "Price is above the 200-day SMA"
+        "Price is above the 20-day EMA",
+        "Price is above the 200-day SMA",
+        "Positive 5-day return",
+        "MACD is above its signal line"
+      ],
+      "risk_flags": [
+        "Far below the 52-week high"
+      ],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "INTC",
+      "name": null,
+      "price": 99.875,
+      "score": 26,
+      "signal": "WEAK",
+      "metrics": {
+        "price": 99.875,
+        "return_5d": 0.2197728792160023,
+        "return_20d": -0.09402211597081311,
+        "return_60d": -0.2004883008009154,
+        "rsi_14": 48.59787042374192,
+        "relative_volume_20": 0.16196081189110795,
+        "distance_from_52_week_high": -0.29136513218437343,
+        "macd": -5.347126174400557,
+        "macd_signal": -6.187547707399784,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 20-day EMA",
+        "Price is above the 200-day SMA",
+        "Positive 5-day return",
+        "MACD is above its signal line"
+      ],
+      "risk_flags": [
+        "Far below the 52-week high"
+      ],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "FRMI",
+      "name": null,
+      "price": 6.264999866485596,
+      "score": 23,
+      "signal": "WEAK",
+      "metrics": {
+        "price": 6.264999866485596,
+        "return_5d": 0.06911258084362903,
+        "return_20d": -0.14877720749523216,
+        "return_60d": 0.19789671962476652,
+        "rsi_14": 46.28726747948068,
+        "relative_volume_20": 0.04557722842235798,
+        "distance_from_52_week_high": null,
+        "macd": -0.29419861245106116,
+        "macd_signal": -0.27228481786280345,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Outperformed the benchmark over 60 days",
+        "Positive 5-day return",
+        "Positive 60-day return"
       ],
       "risk_flags": [],
       "status": "success",
       "error": null
     },
     {
-      "ticker": "IONQ",
+      "ticker": "HOOD",
       "name": null,
-      "price": 36.380001068115234,
-      "score": 9,
+      "price": 94.40499877929688,
+      "score": 23,
       "signal": "WEAK",
       "metrics": {
-        "price": 36.380001068115234,
-        "return_5d": 0.10779539887573297,
-        "return_20d": -0.25936478299676313,
-        "return_60d": -0.24208331108093262,
-        "rsi_14": 41.04919627256419,
-        "relative_volume_20": 0.693560935772921,
-        "distance_from_52_week_high": -0.556827839066145,
-        "macd": -4.386345119006663,
-        "macd_signal": -4.8819730511759065,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 94.40499877929688,
+        "return_5d": 0.050812584900795876,
+        "return_20d": -0.1684576781963958,
+        "return_60d": 0.2255614731318134,
+        "rsi_14": 46.15353345536082,
+        "relative_volume_20": 0.1327792026267077,
+        "distance_from_52_week_high": -0.38078843879055035,
+        "macd": -2.876535394150949,
+        "macd_signal": -1.4920592258643222,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
+        "Outperformed the benchmark over 60 days",
+        "Positive 5-day return",
+        "Positive 60-day return"
+      ],
+      "risk_flags": [
+        "Far below the 52-week high"
+      ],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "VRT",
+      "name": null,
+      "price": 279.8800048828125,
+      "score": 22,
+      "signal": "WEAK",
+      "metrics": {
+        "price": 279.8800048828125,
+        "return_5d": 0.2548422404396371,
+        "return_20d": -0.1193480160069168,
+        "return_60d": -0.17675087837788706,
+        "rsi_14": 48.24908701541838,
+        "relative_volume_20": 0.12461457831720135,
+        "distance_from_52_week_high": -0.2560933558992903,
+        "macd": -13.926949320399274,
+        "macd_signal": -13.054701327251328,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 20-day EMA",
+        "Price is above the 200-day SMA",
+        "Positive 5-day return"
+      ],
+      "risk_flags": [
+        "Far below the 52-week high"
+      ],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "SNDK",
+      "name": null,
+      "price": 1416.469970703125,
+      "score": 18,
+      "signal": "WEAK",
+      "metrics": {
+        "price": 1416.469970703125,
+        "return_5d": 0.3943142961133579,
+        "return_20d": -0.17989443679611483,
+        "return_60d": -0.09336635963261553,
+        "rsi_14": 47.36840343433673,
+        "relative_volume_20": 0.19212548885308894,
+        "distance_from_52_week_high": -0.39337474488088864,
+        "macd": -121.70008453889614,
+        "macd_signal": -125.74323636233,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 200-day SMA",
+        "Positive 5-day return",
+        "MACD is above its signal line"
+      ],
+      "risk_flags": [
+        "Far below the 52-week high"
+      ],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "BBAI",
+      "name": null,
+      "price": 3.0799999237060547,
+      "score": 17,
+      "signal": "WEAK",
+      "metrics": {
+        "price": 3.0799999237060547,
+        "return_5d": 0.1891891991409198,
+        "return_20d": -0.0694864117974413,
+        "return_60d": -0.26315788272885476,
+        "rsi_14": 48.68246950089092,
+        "relative_volume_20": 0.12027386257920653,
+        "distance_from_52_week_high": -0.6543209902971396,
+        "macd": -0.16819529271437084,
+        "macd_signal": -0.23349665690089905,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 20-day EMA",
+        "Positive 5-day return",
+        "MACD is above its signal line"
+      ],
+      "risk_flags": [
+        "Far below the 52-week high"
+      ],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "IONQ",
+      "name": null,
+      "price": 40.38999938964844,
+      "score": 17,
+      "signal": "WEAK",
+      "metrics": {
+        "price": 40.38999938964844,
+        "return_5d": 0.26258204684684383,
+        "return_20d": -0.10403731701216135,
+        "return_60d": -0.17973196562031324,
+        "rsi_14": 49.52903919936727,
+        "relative_volume_20": 0.25973477040653764,
+        "distance_from_52_week_high": -0.5079790328726637,
+        "macd": -2.6505475129022216,
+        "macd_signal": -4.020683165635058,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Price is above the 20-day EMA",
         "Positive 5-day return",
         "MACD is above its signal line"
       ],
@@ -884,23 +1049,24 @@
     {
       "ticker": "NVTS",
       "name": null,
-      "price": 11.055000305175781,
-      "score": 9,
+      "price": 12.760000228881836,
+      "score": 17,
       "signal": "WEAK",
       "metrics": {
-        "price": 11.055000305175781,
-        "return_5d": 0.012362658236139135,
-        "return_20d": -0.2354771593353009,
-        "return_60d": -0.3700854253126802,
-        "rsi_14": 37.679957038079074,
-        "relative_volume_20": 0.6504642012184095,
-        "distance_from_52_week_high": -0.6522491353633106,
-        "macd": -2.0625302639980045,
-        "macd_signal": -2.218061275243257,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 12.760000228881836,
+        "return_5d": 0.31073453301354137,
+        "return_20d": -0.044910137965125885,
+        "return_60d": -0.29890111571506395,
+        "rsi_14": 46.5500900445123,
+        "relative_volume_20": 0.16593559814594588,
+        "distance_from_52_week_high": -0.5986159213147614,
+        "macd": -1.4865705048724305,
+        "macd_signal": -1.9523514372881001,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
+        "Price is above the 20-day EMA",
         "Positive 5-day return",
         "MACD is above its signal line"
       ],
@@ -911,55 +1077,28 @@
       "error": null
     },
     {
-      "ticker": "QBTS",
+      "ticker": "SOUN",
       "name": null,
-      "price": 18.225000381469727,
-      "score": 9,
+      "price": 6.534999847412109,
+      "score": 17,
       "signal": "WEAK",
       "metrics": {
-        "price": 18.225000381469727,
-        "return_5d": 0.1243060709933792,
-        "return_20d": -0.1910785696392605,
-        "return_60d": -0.15389973970093762,
-        "rsi_14": 45.96786488882235,
-        "relative_volume_20": 0.7108729268942138,
-        "distance_from_52_week_high": -0.5930102528297592,
-        "macd": -1.3125204155403551,
-        "macd_signal": -1.4922799040768702,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 6.534999847412109,
+        "return_5d": 0.14649123966455435,
+        "return_20d": -0.03897063763083741,
+        "return_60d": -0.26407660324410354,
+        "rsi_14": 51.12936777198509,
+        "relative_volume_20": 0.11500857590707728,
+        "distance_from_52_week_high": -0.6946261699110756,
+        "macd": -0.1571612433085665,
+        "macd_signal": -0.21622898225056314,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
+        "Price is above the 20-day EMA",
         "Positive 5-day return",
         "MACD is above its signal line"
-      ],
-      "risk_flags": [
-        "Far below the 52-week high"
-      ],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "SNDK",
-      "name": null,
-      "price": 1248.1099853515625,
-      "score": 9,
-      "signal": "WEAK",
-      "metrics": {
-        "price": 1248.1099853515625,
-        "return_5d": -0.1311814790581477,
-        "return_20d": -0.28475072472689833,
-        "return_60d": -0.1124992654445226,
-        "rsi_14": 41.4775820090087,
-        "relative_volume_20": 1.1517084884244753,
-        "distance_from_52_week_high": -0.4654775223333779,
-        "macd": -157.27140324339962,
-        "macd_signal": -116.50045687685284,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "Price is above the 200-day SMA"
       ],
       "risk_flags": [
         "Far below the 52-week high"
@@ -970,24 +1109,25 @@
     {
       "ticker": "STRL",
       "name": null,
-      "price": 604.8900146484375,
-      "score": 9,
+      "price": 547.8400268554688,
+      "score": 14,
       "signal": "WEAK",
       "metrics": {
-        "price": 604.8900146484375,
-        "return_5d": -0.08480344295386733,
-        "return_20d": -0.13679626878567608,
-        "return_60d": -0.24951611085801795,
-        "rsi_14": 42.68090488449344,
-        "relative_volume_20": 0.7361683781618985,
-        "distance_from_52_week_high": -0.39129951436716026,
-        "macd": -51.015861369331446,
-        "macd_signal": -43.78805691355885,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 547.8400268554688,
+        "return_5d": 0.10844941259341634,
+        "return_20d": -0.17084385042506234,
+        "return_60d": -0.3515151103556533,
+        "rsi_14": 38.55932036011384,
+        "relative_volume_20": 0.14217275268701104,
+        "distance_from_52_week_high": -0.44870888538332865,
+        "macd": -52.33975446115858,
+        "macd_signal": -47.39572682456625,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
-        "Price is above the 200-day SMA"
+        "Price is above the 200-day SMA",
+        "Positive 5-day return"
       ],
       "risk_flags": [
         "Far below the 52-week high"
@@ -998,21 +1138,50 @@
     {
       "ticker": "QS",
       "name": null,
-      "price": 5.275000095367432,
+      "price": 5.559999942779541,
+      "score": 9,
+      "signal": "WEAK",
+      "metrics": {
+        "price": 5.559999942779541,
+        "return_5d": 0.12096772177782578,
+        "return_20d": -0.16138765508175346,
+        "return_60d": -0.2625994733542256,
+        "rsi_14": 42.779539959719415,
+        "relative_volume_20": 0.06674016522241102,
+        "distance_from_52_week_high": -0.698481573657737,
+        "macd": -0.44337670492759784,
+        "macd_signal": -0.5094079392636667,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
+      },
+      "reasons": [
+        "Positive 5-day return",
+        "MACD is above its signal line"
+      ],
+      "risk_flags": [
+        "Far below the 52-week high"
+      ],
+      "status": "success",
+      "error": null
+    },
+    {
+      "ticker": "TSLA",
+      "name": null,
+      "price": 325.0201110839844,
       "score": 5,
       "signal": "WEAK",
       "metrics": {
-        "price": 5.275000095367432,
-        "return_5d": 0.07983620229529964,
-        "return_20d": -0.2538896793084715,
-        "return_60d": -0.27341598773201803,
-        "rsi_14": 36.48751134121169,
-        "relative_volume_20": 0.6347943405855307,
-        "distance_from_52_week_high": -0.7139370963886464,
-        "macd": -0.567569516596448,
-        "macd_signal": -0.5342545201120884,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 325.0201110839844,
+        "return_5d": 0.08950155237408386,
+        "return_20d": -0.17520145892084282,
+        "return_60d": -0.24122771926507314,
+        "rsi_14": 38.51965485862064,
+        "relative_volume_20": 0.13932151197326928,
+        "distance_from_52_week_high": -0.33653117529927634,
+        "macd": -21.970169252384096,
+        "macd_signal": -20.89483130882932,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [
         "Positive 5-day return"
@@ -1024,103 +1193,23 @@
       "error": null
     },
     {
-      "ticker": "SOUN",
-      "name": null,
-      "price": 6.146900177001953,
-      "score": 4,
-      "signal": "WEAK",
-      "metrics": {
-        "price": 6.146900177001953,
-        "return_5d": -0.002126569924455368,
-        "return_20d": -0.06154198503735997,
-        "return_60d": -0.3274726535986857,
-        "rsi_14": 43.441696903326914,
-        "relative_volume_20": 0.7984286120249874,
-        "distance_from_52_week_high": -0.7127616688516505,
-        "macd": -0.23882060393180815,
-        "macd_signal": -0.2419177949764342,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [
-        "MACD is above its signal line"
-      ],
-      "risk_flags": [
-        "Far below the 52-week high"
-      ],
-      "status": "success",
-      "error": null
-    },
-    {
       "ticker": "NXPI",
       "name": null,
-      "price": 231.66000366210938,
+      "price": 235.2449951171875,
       "score": 0,
       "signal": "WEAK",
       "metrics": {
-        "price": 231.66000366210938,
-        "return_5d": -0.13957802679888687,
-        "return_20d": -0.1525460342552465,
-        "return_60d": -0.2075936417799049,
-        "rsi_14": 29.699237902959226,
-        "relative_volume_20": 0.8862069919238519,
-        "distance_from_52_week_high": -0.30363424922146554,
-        "macd": -11.776501142926577,
-        "macd_signal": -8.028526396207257,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [],
-      "risk_flags": [
-        "Far below the 52-week high"
-      ],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "PLTR",
-      "name": null,
-      "price": 122.5,
-      "score": 0,
-      "signal": "WEAK",
-      "metrics": {
-        "price": 122.5,
-        "return_5d": -0.0034168416466134888,
-        "return_20d": -0.052590896297472045,
-        "return_60d": -0.09866826061934675,
-        "rsi_14": 43.630832793668674,
-        "relative_volume_20": 0.570262310858425,
-        "distance_from_52_week_high": -0.4087266901698279,
-        "macd": -1.6705694084088805,
-        "macd_signal": -0.9427869719532107,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
-      },
-      "reasons": [],
-      "risk_flags": [
-        "Far below the 52-week high"
-      ],
-      "status": "success",
-      "error": null
-    },
-    {
-      "ticker": "TSLA",
-      "name": null,
-      "price": 310.3550109863281,
-      "score": 0,
-      "signal": "WEAK",
-      "metrics": {
-        "price": 310.3550109863281,
-        "return_5d": -0.008545467857394629,
-        "return_20d": -0.2111958282949017,
-        "return_60d": -0.20293033649672587,
-        "rsi_14": 31.29004857444008,
-        "relative_volume_20": 0.7117684354811988,
-        "distance_from_52_week_high": -0.36646728200190526,
-        "macd": -25.792228659851503,
-        "macd_signal": -18.80738618485297,
-        "benchmark_return_20d": -0.03366655137993757,
-        "benchmark_return_60d": 0.010268638507927141
+        "price": 235.2449951171875,
+        "return_5d": -0.023798658444810328,
+        "return_20d": -0.1711180115541201,
+        "return_60d": -0.2018829682198897,
+        "rsi_14": 35.56556797981162,
+        "relative_volume_20": 0.07509908489731562,
+        "distance_from_52_week_high": -0.29285783021652,
+        "macd": -14.299876961574455,
+        "macd_signal": -11.017383161802226,
+        "benchmark_return_20d": 0.019847063798398734,
+        "benchmark_return_60d": 0.020148218555690267
       },
       "reasons": [],
       "risk_flags": [

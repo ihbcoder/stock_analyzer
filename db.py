@@ -288,3 +288,93 @@ def get_latest_run(db_path: str | Path) -> dict[str, Any] | None:
         result["rankings"].append(ranking)
 
     return result
+
+
+def get_recent_full_runs(db_path: str | Path, limit: int = 2) -> list[dict[str, Any]]:
+    target = Path(db_path)
+    if not target.exists():
+        return []
+
+    with sqlite3.connect(target) as connection:
+        connection.row_factory = sqlite3.Row
+        run_rows = connection.execute(
+            """
+            SELECT
+                id
+            FROM analysis_runs
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+
+    runs: list[dict[str, Any]] = []
+    for row in run_rows:
+        run_id = int(row["id"])
+        run = get_run_by_id(target, run_id)
+        if run is not None:
+            runs.append(run)
+    return runs
+
+
+def get_run_by_id(db_path: str | Path, run_id: int) -> dict[str, Any] | None:
+    target = Path(db_path)
+    if not target.exists():
+        return None
+
+    with sqlite3.connect(target) as connection:
+        connection.row_factory = sqlite3.Row
+        run_row = connection.execute(
+            """
+            SELECT
+                id,
+                generated_at,
+                source_input,
+                strategy,
+                benchmark,
+                minimum_score,
+                stock_count,
+                run_status,
+                market_status_json
+            FROM analysis_runs
+            WHERE id = ?
+            LIMIT 1
+            """,
+            (run_id,),
+        ).fetchone()
+        if run_row is None:
+            return None
+
+        ranking_rows = connection.execute(
+            """
+            SELECT
+                rank_position,
+                ticker,
+                name,
+                price,
+                score,
+                signal,
+                status,
+                error,
+                metrics_json,
+                reasons_json,
+                risk_flags_json
+            FROM stock_rankings
+            WHERE run_id = ?
+            ORDER BY rank_position ASC
+            """,
+            (run_id,),
+        ).fetchall()
+
+    result = dict(run_row)
+    result["market_status"] = json.loads(result.pop("market_status_json", "{}"))
+    result["rankings"] = []
+
+    for row in ranking_rows:
+        ranking = dict(row)
+        ranking["metrics"] = json.loads(ranking.pop("metrics_json", "{}"))
+        ranking["reasons"] = json.loads(ranking.pop("reasons_json", "[]"))
+        ranking["risk_flags"] = json.loads(ranking.pop("risk_flags_json", "[]"))
+        result["rankings"].append(ranking)
+
+    return result
