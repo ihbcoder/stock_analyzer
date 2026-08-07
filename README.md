@@ -84,6 +84,12 @@ Run a scan, regenerate the dashboard, commit the generated files, and push them 
 powershell -ExecutionPolicy Bypass -File .\scripts\publish_site.ps1
 ```
 
+Send a daily email after the scan using local SMTP environment variables:
+
+```powershell
+py main.py scan stocks.json --output results.json --db data/stock_analyzer.db --dashboard-output site/index.html --email-report
+```
+
 ## Input format
 
 See [stocks.json](./stocks.json).
@@ -97,6 +103,9 @@ For after-close runs, use [stocks_eod.json](./stocks_eod.json). It uses the same
 - Scoring is deliberately simple and transparent.
 - SQLite is built in through Python's standard library. Each run is saved in `analysis_runs` and each ranked stock row is saved in `stock_rankings`.
 - The CLI keeps the old `python main.py stocks.json ...` flow working by treating it as `scan`.
+- `--email-report` sends the latest scan summary through SMTP. The email includes both plain-text and HTML versions. By default it assumes Gmail SMTP (`smtp.gmail.com:465`), but you can override the host and port with environment variables.
+- Email credentials stay local. Set `EMAIL_SMTP_USER`, `EMAIL_SMTP_APP_PASSWORD`, and `REPORT_TO_EMAIL` on the machine before using `--email-report`. `REPORT_FROM_EMAIL` is optional and defaults to the SMTP user.
+- `REPORT_TO_EMAIL` can contain multiple recipients separated by commas or semicolons, for example: `yourgmail@gmail.com;k_buhagiar@yahoo.com`.
 - `python main.py rebalance` builds a monthly keep/sell/buy report from the latest saved run, with a one-run grace period for names that just fell out of the top group.
 - When `agent.market_hours_only` is `true`, scans are skipped when the NYSE is closed, including market holidays. The saved run is marked `skipped_market_closed`.
 - Use `stocks.json` for intraday scans and `stocks_eod.json` for end-of-day or evening runs.

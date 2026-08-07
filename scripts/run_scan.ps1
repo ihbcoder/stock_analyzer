@@ -4,7 +4,9 @@ param(
     [string]$OutputFile = "results.json",
     [string]$DatabaseFile = "data\stock_analyzer.db",
     [string]$LogFile = "logs\stock_analyzer.log",
-    [string]$DashboardFile = "site\index.html"
+    [string]$DashboardFile = "site\index.html",
+    [string]$HoldingsFile = "holdings.txt",
+    [switch]$EmailReport
 )
 
 $ErrorActionPreference = "Stop"
@@ -18,7 +20,22 @@ $dashboardPath = Join-Path $resolvedProjectRoot $DashboardFile
 
 Set-Location -LiteralPath $resolvedProjectRoot
 
-& py main.py scan $inputPath --output $outputPath --db $dbPath --log $logPath --dashboard-output $dashboardPath
+$scanArgs = @(
+    "main.py",
+    "scan",
+    $inputPath,
+    "--output", $outputPath,
+    "--db", $dbPath,
+    "--log", $logPath,
+    "--dashboard-output", $dashboardPath,
+    "--holdings-file", (Join-Path $resolvedProjectRoot $HoldingsFile)
+)
+
+if ($EmailReport) {
+    $scanArgs += "--email-report"
+}
+
+& py @scanArgs
 $exitCode = $LASTEXITCODE
 
 if ($exitCode -ne 0) {

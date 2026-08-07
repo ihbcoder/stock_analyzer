@@ -54,6 +54,33 @@ def build_report_text(recent_runs: list[dict[str, Any]], latest_rankings: list[d
     return "\n\n".join(sections)
 
 
+def build_price_history_text(ticker: str, rows: list[dict[str, Any]]) -> str:
+    normalized_ticker = ticker.strip().upper()
+    if not rows:
+        return f"Price history for {normalized_ticker}\n(no saved prices found)"
+
+    price_rows = [
+        [
+            str(row.get("run_id") or ""),
+            str(row.get("generated_at") or ""),
+            str(row.get("ticker") or ""),
+            _format_price(row.get("price")),
+            str(row.get("rank_position") or ""),
+            str(row.get("score") or ""),
+            str(row.get("signal") or ""),
+            str(row.get("run_status") or ""),
+        ]
+        for row in rows
+    ]
+    return (
+        f"Price history for {normalized_ticker}\n"
+        + _format_table(
+            ["run_id", "generated_at", "ticker", "price", "rank", "score", "signal", "run_status"],
+            price_rows,
+        )
+    )
+
+
 def build_rebalance_report_text(report: dict[str, Any]) -> str:
     sections: list[str] = []
     summary = report.get("summary", {})

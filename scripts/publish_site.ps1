@@ -6,8 +6,10 @@ param(
     [string]$LogFile = "logs\stock_analyzer.log",
     [string]$DashboardFile = "site\index.html",
     [string]$DashboardDataFile = "site\dashboard-data.json",
+    [string]$HoldingsFile = "holdings.txt",
     [string]$Remote = "origin",
     [string]$Branch = "main",
+    [switch]$EmailReport,
     [switch]$SkipCommit,
     [switch]$SkipPush
 )
@@ -28,7 +30,9 @@ Set-Location -LiteralPath $resolvedProjectRoot
     -OutputFile $OutputFile `
     -DatabaseFile $DatabaseFile `
     -LogFile $LogFile `
-    -DashboardFile $DashboardFile
+    -DashboardFile $DashboardFile `
+    -HoldingsFile $HoldingsFile `
+    -EmailReport:$EmailReport
 
 $exitCode = $LASTEXITCODE
 if ($exitCode -ne 0) {

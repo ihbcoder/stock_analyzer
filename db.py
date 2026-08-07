@@ -228,6 +228,42 @@ def get_latest_rankings(
     return [dict(row) for row in rows]
 
 
+def get_price_history(db_path: str | Path, ticker: str, limit: int = 30) -> list[dict[str, Any]]:
+    target = Path(db_path)
+    if not target.exists():
+        return []
+
+    normalized_ticker = ticker.strip().upper()
+    if not normalized_ticker:
+        return []
+
+    with sqlite3.connect(target) as connection:
+        connection.row_factory = sqlite3.Row
+        rows = connection.execute(
+            """
+            SELECT
+                r.id AS run_id,
+                r.generated_at,
+                r.run_status,
+                s.ticker,
+                s.price,
+                s.rank_position,
+                s.score,
+                s.signal,
+                s.status
+            FROM stock_rankings s
+            JOIN analysis_runs r
+                ON r.id = s.run_id
+            WHERE s.ticker = ?
+            ORDER BY r.generated_at DESC, s.rank_position ASC
+            LIMIT ?
+            """,
+            (normalized_ticker, limit),
+        ).fetchall()
+
+    return [dict(row) for row in rows]
+
+
 def get_latest_run(db_path: str | Path) -> dict[str, Any] | None:
     target = Path(db_path)
     if not target.exists():

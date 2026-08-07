@@ -7,16 +7,24 @@ from pathlib import Path
 from analyzer import run_analysis
 from app_logging import configure_logging
 from dashboard import build_dashboard
-from db import get_latest_rankings, get_recent_full_runs, get_recent_runs, initialize_database, save_analysis_result
+from db import (
+    get_latest_rankings,
+    get_price_history,
+    get_recent_full_runs,
+    get_recent_runs,
+    initialize_database,
+    save_analysis_result,
+)
+from email_report import send_scan_email_report
 from file_writer import write_json
 from rebalance import build_rebalance_plan, load_holdings
-from reporting import build_rebalance_report_text, build_report_text
+from reporting import build_price_history_text, build_rebalance_report_text, build_report_text
 from site_server import serve_site
 
 
 def parse_args() -> argparse.Namespace:
     argv = sys.argv[1:]
-    if argv and argv[0] not in {"scan", "report", "serve", "rebalance", "-h", "--help"}:
+    if argv and argv[0] not in {"scan", "report", "serve", "rebalance", "prices", "-h", "--help"}:
         argv = ["scan", *argv]
 
     parser = argparse.ArgumentParser(description="Momentum stock scanner")
@@ -39,6 +47,16 @@ def parse_args() -> argparse.Namespace:
         "--dashboard-output",
         default="site/index.html",
         help="Path to generated dashboard HTML file",
+    )
+    scan_parser.add_argument(
+        "--email-report",
+        action="store_true",
+        help="Send a scan summary email using local SMTP environment variables",
+    )
+    scan_parser.add_argument(
+        "--holdings-file",
+        default="holdings.txt",
+        help="Holdings file used for rebalance content in the email report",
     )
 
     report_parser = subparsers.add_parser("report", help="Show recent scans and latest rankings")
@@ -112,6 +130,25 @@ def parse_args() -> argparse.Namespace:
         help="Sell when a holding falls below this score",
     )
 
+    prices_parser = subparsers.add_parser("prices", help="Show saved price history for one ticker")
+    prices_parser.add_argument("ticker", help="Ticker symbol, for example NVDA")
+    prices_parser.add_argument(
+        "--db",
+        default="data/stock_analyzer.db",
+        help="Path to SQLite database file",
+    )
+    prices_parser.add_argument(
+        "--log",
+        default="logs/stock_analyzer.log",
+        help="Path to log file",
+    )
+    prices_parser.add_argument(
+        "--limit",
+        type=int,
+        default=30,
+        help="Maximum number of saved rows to display",
+    )
+
     return parser.parse_args(argv)
 
 
@@ -122,11 +159,12 @@ def main() -> int:
     try:
         if args.command == "scan":
             logger.info(
-                "Starting scan input=%s output=%s db=%s dashboard=%s",
+                "Starting scan input=%s output=%s db=%s dashboard=%s email_report=%s",
                 args.input,
                 args.output,
                 args.db,
                 args.dashboard_output,
+                args.email_report,
             )
             results = run_analysis(args.input)
             write_json(args.output, results)
@@ -134,6 +172,20 @@ def main() -> int:
             initialize_database(db_path)
             run_id = save_analysis_result(db_path, results, source_input=args.input)
             dashboard_path = build_dashboard(db_path, args.dashboard_output)
+            recent_runs = get_recent_full_runs(db_path, limit=2)
+            latest_run = recent_runs[0] if recent_runs else None
+            previous_run = recent_runs[1] if len(recent_runs) > 1 else None
+            if args.email_report:
+                send_scan_email_report(
+                    results,
+                    latest_run=latest_run,
+                    previous_run=previous_run,
+                    holdings_file=args.holdings_file,
+                )
+                logger.info(
+                    "Email report sent to configured recipient holdings_file=%s",
+                    args.holdings_file,
+                )
             logger.info(
                 "Completed scan run_id=%s run_status=%s rankings=%s generated_at=%s dashboard=%s",
                 run_id,
@@ -147,6 +199,7 @@ def main() -> int:
                 f"status={results.get('run_status')} "
                 f"rankings={len(results.get('rankings', []))} "
                 f"dashboard={dashboard_path}"
+                + (" email=sent" if args.email_report else "")
             )
             return 0
 
@@ -186,6 +239,24 @@ def main() -> int:
                 report.get("summary", {}).get("buy_count"),
                 report.get("summary", {}).get("sell_count"),
                 report.get("summary", {}).get("target_positions_count"),
+            )
+            return 0
+
+        if args.command == "prices":
+            db_path = Path(args.db)
+            normalized_ticker = args.ticker.strip().upper()
+            logger.info(
+                "Showing price history db=%s ticker=%s limit=%s",
+                args.db,
+                normalized_ticker,
+                args.limit,
+            )
+            rows = get_price_history(db_path, normalized_ticker, limit=args.limit)
+            print(build_price_history_text(normalized_ticker, rows))
+            logger.info(
+                "Completed price history ticker=%s rows=%s",
+                normalized_ticker,
+                len(rows),
             )
             return 0
 
