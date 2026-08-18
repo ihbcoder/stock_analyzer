@@ -200,20 +200,21 @@ def main() -> int:
                 previous_run = recent_runs[1] if len(recent_runs) > 1 else None
                 if args.email_report:
                     calendar_name = str((results.get("market_status") or {}).get("calendar") or "NYSE")
-                    if monthly_rebalance_due(results.get("generated_at"), calendar_name):
-                        send_scan_email_report(
-                            results,
-                            latest_run=latest_run,
-                            previous_run=previous_run,
-                            holdings_file=args.holdings_file,
-                            monthly_action_required=True,
-                        )
-                        logger.info(
-                            "Monthly action email sent to configured recipient holdings_file=%s",
-                            args.holdings_file,
-                        )
-                    else:
-                        logger.info("Successful scan email withheld until the monthly rebalance date")
+                    is_monthly_action_date = monthly_rebalance_due(
+                        results.get("generated_at"), calendar_name
+                    )
+                    send_scan_email_report(
+                        results,
+                        latest_run=latest_run,
+                        previous_run=previous_run,
+                        holdings_file=args.holdings_file,
+                        monthly_action_required=is_monthly_action_date,
+                    )
+                    logger.info(
+                        "%s email sent to configured recipient holdings_file=%s",
+                        "Monthly action" if is_monthly_action_date else "Daily status",
+                        args.holdings_file,
+                    )
             except Exception as exc:
                 logger.exception("Scan failed")
                 if args.email_report:
