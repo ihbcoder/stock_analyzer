@@ -115,8 +115,7 @@ def parse_args() -> argparse.Namespace:
     rebalance_parser.add_argument(
         "--top-n",
         type=int,
-        default=8,
-        help="Target number of positions to hold",
+        help="Target number of stock positions; defaults to the current holdings count",
     )
     rebalance_parser.add_argument(
         "--buy-score",

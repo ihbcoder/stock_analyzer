@@ -29,12 +29,17 @@ def build_rebalance_plan(
     previous_run: dict[str, Any] | None,
     current_holdings: list[str],
     *,
-    top_n: int = 8,
+    top_n: int | None = None,
     buy_score: int = 70,
     sell_score: int = 55,
     rotation_score_gap: int = 10,
     minimum_average_dollar_volume: float | None = None,
 ) -> dict[str, Any]:
+    current_holdings = [ticker.upper() for ticker in current_holdings]
+    target_position_count = top_n if top_n is not None else (len(current_holdings) or 8)
+    if target_position_count < 1:
+        raise ValueError("top_n must be at least 1")
+
     latest_rankings = list((latest_run or {}).get("rankings", []) or [])
     previous_rankings = list((previous_run or {}).get("rankings", []) or [])
 
@@ -48,7 +53,6 @@ def build_rebalance_plan(
     )
     market_regime = (latest_run or {}).get("market_regime", {}) or {}
 
-    current_holdings = [ticker.upper() for ticker in current_holdings]
     holding_rows: list[dict[str, Any]] = []
     kept_tickers: list[str] = []
 
@@ -59,7 +63,7 @@ def build_rebalance_plan(
             ticker=ticker,
             latest=latest,
             previous=previous,
-            top_n=top_n,
+            top_n=target_position_count,
             sell_score=sell_score,
         )
         if action == "KEEP":
@@ -85,7 +89,7 @@ def build_rebalance_plan(
         for row in latest_rankings
         if str(row.get("ticker", "")).upper() not in current_holdings
         and int(row.get("score") or 0) >= buy_score
-        and int(row.get("rank_position") or 999999) <= top_n
+        and int(row.get("rank_position") or 999999) <= target_position_count
         and _has_positive_momentum(row)
         and _is_liquid(row, minimum_average_dollar_volume)
         and not market_regime.get("is_weak", False)
@@ -93,15 +97,15 @@ def build_rebalance_plan(
              or _score_change(row, previous_by_ticker.get(str(row.get("ticker", "")).upper())) >= 0)
     ]
     _apply_rotation_gap(holding_rows, eligible_buys, rotation_score_gap)
-    _limit_kept_holdings(holding_rows, top_n)
+    _limit_kept_holdings(holding_rows, target_position_count)
     kept_tickers = [row["ticker"] for row in holding_rows if row["action"] == "KEEP"]
-    available_slots = max(0, top_n - len(kept_tickers))
+    available_slots = max(0, target_position_count - len(kept_tickers))
     buy_rows = [
         {
             "ticker": row.get("ticker"),
             "name": row.get("name"),
             "action": "BUY",
-            "reason": _buy_reason(row, previous_by_ticker.get(str(row.get("ticker", "")).upper()), top_n, buy_score),
+            "reason": _buy_reason(row, previous_by_ticker.get(str(row.get("ticker", "")).upper()), target_position_count, buy_score),
             "rank_position": row.get("rank_position"),
             "previous_rank_position": previous_by_ticker.get(str(row.get('ticker', '')).upper(), {}).get("rank_position"),
             "score": row.get("score"),
@@ -114,7 +118,7 @@ def build_rebalance_plan(
 
     target_tickers = kept_tickers + [str(row["ticker"]).upper() for row in buy_rows]
     target_allocations: list[dict[str, Any]] = []
-    stock_weight = 100.0 / top_n if top_n else 0.0
+    stock_weight = 100.0 / target_position_count
     for ticker in target_tickers:
         latest = latest_by_ticker.get(ticker, {})
         source = "KEEP" if ticker in kept_tickers else "BUY"
@@ -168,7 +172,7 @@ def build_rebalance_plan(
         "generated_at": (latest_run or {}).get("generated_at"),
         "latest_run_id": (latest_run or {}).get("id"),
         "previous_run_id": (previous_run or {}).get("id"),
-        "top_n": top_n,
+        "top_n": target_position_count,
         "buy_score": buy_score,
         "sell_score": sell_score,
         "rotation_score_gap": rotation_score_gap,
