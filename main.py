@@ -20,6 +20,7 @@ from email_report import send_scan_email_report
 from file_writer import write_json
 from rebalance import build_rebalance_plan, load_holdings
 from reporting import build_price_history_text, build_rebalance_report_text, build_report_text
+from rebalance_schedule import monthly_rebalance_due
 from site_server import serve_site
 
 
@@ -198,16 +199,21 @@ def main() -> int:
                 latest_run = recent_runs[0] if recent_runs else None
                 previous_run = recent_runs[1] if len(recent_runs) > 1 else None
                 if args.email_report:
-                    send_scan_email_report(
-                        results,
-                        latest_run=latest_run,
-                        previous_run=previous_run,
-                        holdings_file=args.holdings_file,
-                    )
-                    logger.info(
-                        "Email report sent to configured recipient holdings_file=%s",
-                        args.holdings_file,
-                    )
+                    calendar_name = str((results.get("market_status") or {}).get("calendar") or "NYSE")
+                    if monthly_rebalance_due(results.get("generated_at"), calendar_name):
+                        send_scan_email_report(
+                            results,
+                            latest_run=latest_run,
+                            previous_run=previous_run,
+                            holdings_file=args.holdings_file,
+                            monthly_action_required=True,
+                        )
+                        logger.info(
+                            "Monthly action email sent to configured recipient holdings_file=%s",
+                            args.holdings_file,
+                        )
+                    else:
+                        logger.info("Successful scan email withheld until the monthly rebalance date")
             except Exception as exc:
                 logger.exception("Scan failed")
                 if args.email_report:
