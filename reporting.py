@@ -92,6 +92,9 @@ def build_rebalance_report_text(report: dict[str, Any]) -> str:
         ["top_n", str(report.get("top_n") or "")],
         ["buy_score", str(report.get("buy_score") or "")],
         ["sell_score", str(report.get("sell_score") or "")],
+        ["market_regime", str((report.get("market_regime") or {}).get("label") or "")],
+        ["market_regime_reason", str((report.get("market_regime") or {}).get("reason") or "")],
+        ["fallback_allocation", f"{float(report.get('fallback_allocation_pct') or 0):.1f}%"],
         ["market_state", "OPEN" if market_status.get("is_open") else "CLOSED"],
         ["market_reason", str(market_status.get("reason") or "")],
         ["current_holdings", str(summary.get("current_holdings_count") or 0)],
@@ -111,8 +114,10 @@ def build_rebalance_report_text(report: dict[str, Any]) -> str:
                 str(row.get("rank_position") or ""),
                 str(row.get("previous_rank_position") or ""),
                 str(row.get("score") or ""),
+                str(row.get("momentum_change") or ""),
                 row.get("signal") or "",
                 _format_price(row.get("price")),
+                row.get("destination") or "",
                 row.get("reason") or "",
             ]
             for row in current_holdings
@@ -120,7 +125,7 @@ def build_rebalance_report_text(report: dict[str, Any]) -> str:
         sections.append(
             "Current holdings actions\n"
             + _format_table(
-                ["ticker", "action", "rank", "prev_rank", "score", "signal", "price", "reason"],
+                ["ticker", "action", "rank", "prev_rank", "score", "score_change", "signal", "price", "destination", "reason"],
                 holding_rows,
             )
         )

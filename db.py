@@ -21,9 +21,13 @@ def initialize_database(db_path: str | Path) -> None:
                 strategy TEXT NOT NULL,
                 benchmark TEXT NOT NULL,
                 minimum_score INTEGER NOT NULL,
+                scoring_version TEXT NOT NULL DEFAULT 'legacy_v1',
                 stock_count INTEGER NOT NULL,
                 run_status TEXT NOT NULL DEFAULT 'success',
-                market_status_json TEXT NOT NULL DEFAULT '{}'
+                market_status_json TEXT NOT NULL DEFAULT '{}',
+                benchmark_metrics_json TEXT NOT NULL DEFAULT '{}',
+                market_regime_json TEXT NOT NULL DEFAULT '{}',
+                portfolio_policy_json TEXT NOT NULL DEFAULT '{}'
             );
 
             CREATE TABLE IF NOT EXISTS stock_rankings (
@@ -69,6 +73,15 @@ def _ensure_analysis_run_columns(connection: sqlite3.Connection) -> None:
             "ALTER TABLE analysis_runs ADD COLUMN market_status_json TEXT NOT NULL DEFAULT '{}'"
         )
 
+    if "scoring_version" not in columns:
+        connection.execute(
+            "ALTER TABLE analysis_runs ADD COLUMN scoring_version TEXT NOT NULL DEFAULT 'legacy_v1'"
+        )
+
+    for column in ("benchmark_metrics_json", "market_regime_json", "portfolio_policy_json"):
+        if column not in columns:
+            connection.execute(f"ALTER TABLE analysis_runs ADD COLUMN {column} TEXT NOT NULL DEFAULT '{{}}'")
+
 
 def save_analysis_result(db_path: str | Path, result: dict[str, Any], source_input: str) -> int:
     rankings = result.get("rankings", [])
@@ -86,10 +99,14 @@ def save_analysis_result(db_path: str | Path, result: dict[str, Any], source_inp
                 strategy,
                 benchmark,
                 minimum_score,
+                scoring_version,
                 stock_count,
                 run_status,
-                market_status_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                market_status_json,
+                benchmark_metrics_json,
+                market_regime_json,
+                portfolio_policy_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 result["generated_at"],
@@ -97,9 +114,13 @@ def save_analysis_result(db_path: str | Path, result: dict[str, Any], source_inp
                 result["strategy"],
                 result["benchmark"],
                 result["minimum_score"],
+                result.get("scoring_version", "legacy_v1"),
                 len(rankings),
                 result.get("run_status", "success"),
                 json.dumps(result.get("market_status", {}), sort_keys=True),
+                json.dumps(result.get("benchmark_metrics", {}), sort_keys=True),
+                json.dumps(result.get("market_regime", {}), sort_keys=True),
+                json.dumps(result.get("portfolio_policy", {}), sort_keys=True),
             ),
         )
         run_id = int(cursor.lastrowid)
@@ -159,6 +180,7 @@ def get_recent_runs(db_path: str | Path, limit: int = 5) -> list[dict[str, Any]]
                 strategy,
                 benchmark,
                 minimum_score,
+                scoring_version,
                 stock_count,
                 run_status
             FROM analysis_runs
@@ -280,9 +302,13 @@ def get_latest_run(db_path: str | Path) -> dict[str, Any] | None:
                 strategy,
                 benchmark,
                 minimum_score,
+                scoring_version,
                 stock_count,
                 run_status,
-                market_status_json
+                market_status_json,
+                benchmark_metrics_json,
+                market_regime_json,
+                portfolio_policy_json
             FROM analysis_runs
             ORDER BY id DESC
             LIMIT 1
@@ -312,8 +338,30 @@ def get_latest_run(db_path: str | Path) -> dict[str, Any] | None:
             (run_row["id"],),
         ).fetchall()
 
+        previous_run = connection.execute(
+            """
+            SELECT id FROM analysis_runs
+            WHERE scoring_version = ? AND id < ?
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (run_row["scoring_version"], run_row["id"]),
+        ).fetchone()
+        previous_scores = {}
+        if previous_run is not None:
+            previous_scores = {
+                row["ticker"]: row["score"]
+                for row in connection.execute(
+                    "SELECT ticker, score FROM stock_rankings WHERE run_id = ?",
+                    (previous_run["id"],),
+                ).fetchall()
+            }
+
     result = dict(run_row)
     result["market_status"] = json.loads(result.pop("market_status_json", "{}"))
+    result["benchmark_metrics"] = json.loads(result.pop("benchmark_metrics_json", "{}"))
+    result["market_regime"] = json.loads(result.pop("market_regime_json", "{}"))
+    result["portfolio_policy"] = json.loads(result.pop("portfolio_policy_json", "{}"))
     result["rankings"] = []
 
     for row in ranking_rows:
@@ -321,28 +369,35 @@ def get_latest_run(db_path: str | Path) -> dict[str, Any] | None:
         ranking["metrics"] = json.loads(ranking.pop("metrics_json", "{}"))
         ranking["reasons"] = json.loads(ranking.pop("reasons_json", "[]"))
         ranking["risk_flags"] = json.loads(ranking.pop("risk_flags_json", "[]"))
+        previous_score = previous_scores.get(ranking["ticker"])
+        ranking["momentum_change"] = (
+            int(ranking["score"]) - int(previous_score) if previous_score is not None else None
+        )
         result["rankings"].append(ranking)
 
     return result
 
 
-def get_recent_full_runs(db_path: str | Path, limit: int = 2) -> list[dict[str, Any]]:
+def get_recent_full_runs(
+    db_path: str | Path,
+    limit: int = 2,
+    scoring_version: str | None = None,
+) -> list[dict[str, Any]]:
     target = Path(db_path)
     if not target.exists():
         return []
 
     with sqlite3.connect(target) as connection:
         connection.row_factory = sqlite3.Row
-        run_rows = connection.execute(
-            """
-            SELECT
-                id
-            FROM analysis_runs
-            ORDER BY id DESC
-            LIMIT ?
-            """,
-            (limit,),
-        ).fetchall()
+        if scoring_version is None:
+            run_rows = connection.execute(
+                "SELECT id FROM analysis_runs ORDER BY id DESC LIMIT ?", (limit,)
+            ).fetchall()
+        else:
+            run_rows = connection.execute(
+                "SELECT id FROM analysis_runs WHERE scoring_version = ? ORDER BY id DESC LIMIT ?",
+                (scoring_version, limit),
+            ).fetchall()
 
     runs: list[dict[str, Any]] = []
     for row in run_rows:
@@ -369,9 +424,13 @@ def get_run_by_id(db_path: str | Path, run_id: int) -> dict[str, Any] | None:
                 strategy,
                 benchmark,
                 minimum_score,
+                scoring_version,
                 stock_count,
                 run_status,
-                market_status_json
+                market_status_json,
+                benchmark_metrics_json,
+                market_regime_json,
+                portfolio_policy_json
             FROM analysis_runs
             WHERE id = ?
             LIMIT 1
@@ -404,6 +463,9 @@ def get_run_by_id(db_path: str | Path, run_id: int) -> dict[str, Any] | None:
 
     result = dict(run_row)
     result["market_status"] = json.loads(result.pop("market_status_json", "{}"))
+    result["benchmark_metrics"] = json.loads(result.pop("benchmark_metrics_json", "{}"))
+    result["market_regime"] = json.loads(result.pop("market_regime_json", "{}"))
+    result["portfolio_policy"] = json.loads(result.pop("portfolio_policy_json", "{}"))
     result["rankings"] = []
 
     for row in ranking_rows:

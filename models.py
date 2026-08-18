@@ -10,6 +10,9 @@ class AgentConfig:
     benchmark: str = "QQQ"
     minimum_score: int = 70
     market_hours_only: bool = False
+    scoring_version: str = "monthly_momentum_v2"
+    minimum_average_dollar_volume: float = 10_000_000.0
+    market_volatility_limit: float = 0.30
 
 
 @dataclass(slots=True)

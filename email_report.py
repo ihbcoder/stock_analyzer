@@ -59,8 +59,9 @@ def build_email_body(
     previous_run: dict[str, Any] | None = None,
     holdings_file: str | None = None,
 ) -> str:
-    rankings = result.get("rankings", []) or []
+    rankings = (latest_run or result).get("rankings", []) or []
     market_status = result.get("market_status", {}) or {}
+    failure_error = str(result.get("failure_error") or "")
     holdings = load_holdings(holdings_file=holdings_file) if holdings_file else []
     plan = build_rebalance_plan(latest_run, previous_run, holdings) if holdings and latest_run is not None else None
 
@@ -72,11 +73,13 @@ def build_email_body(
         f"Market state: {'OPEN' if market_status.get('is_open') else 'CLOSED'}",
         f"Market reason: {market_status.get('reason') or ''}",
         f"Session date: {market_status.get('session_date') or ''}",
-        "",
-        f"Total ranked symbols: {len(rankings)}",
-        "",
-        "Top rankings:",
     ]
+
+    if failure_error:
+        lines.extend(["", f"Failure: {failure_error}", "", "No rankings were produced."])
+        return "\n".join(lines)
+
+    lines.extend(["", f"Total ranked symbols: {len(rankings)}", "", "Top rankings:"])
 
     if rankings:
         for row in rankings[:12]:
@@ -88,8 +91,10 @@ def build_email_body(
                 + f"signal={row.get('signal') or ''} "
                 + f"score={row.get('score') or ''} "
                 + f"price={_format_price(row.get('price'))} "
-                + f"5d={_format_percent(metrics.get('return_5d'))} "
-                + f"20d={_format_percent(metrics.get('return_20d'))}"
+                + f"score_change={_format_signed_number(row.get('momentum_change'))} "
+                + f"1m={_format_percent(metrics.get('return_21d'))} "
+                + f"3m={_format_percent(metrics.get('return_63d'))} "
+                + f"rs_3m={_format_percent(metrics.get('relative_return_63d'))}"
             )
     else:
         lines.append("  (no rankings)")
@@ -119,8 +124,9 @@ def build_email_html(
     previous_run: dict[str, Any] | None = None,
     holdings_file: str | None = None,
 ) -> str:
-    rankings = result.get("rankings", []) or []
+    rankings = (latest_run or result).get("rankings", []) or []
     market_status = result.get("market_status", {}) or {}
+    failure_error = str(result.get("failure_error") or "")
     top_row = rankings[0] if rankings else {}
     holdings = load_holdings(holdings_file=holdings_file) if holdings_file else []
     plan = build_rebalance_plan(latest_run, previous_run, holdings) if holdings and latest_run is not None else None
@@ -128,11 +134,21 @@ def build_email_html(
     summary = (plan or {}).get("summary", {}) or {}
 
     top_rows_html = "".join(_render_ranking_row_html(row) for row in rankings[:12]) or (
-        "<tr><td colspan='8' style='padding:12px 14px; border-bottom:1px solid #22314c; color:#8ca0bf;'>No rankings available.</td></tr>"
+        "<tr><td colspan='9' style='padding:12px 14px; border-bottom:1px solid #22314c; color:#8ca0bf;'>No rankings available.</td></tr>"
     )
 
     sells = (plan or {}).get("current_holdings", []) or []
     buys = (plan or {}).get("buy_candidates", []) or []
+    failure_html = (
+        f"""
+        <div style="background:#4a1111; border:1px solid #ef4444; border-radius:12px; padding:16px; margin-bottom:16px;">
+          <div style="font-size:18px; font-weight:700; color:#fca5a5; margin-bottom:6px;">Scan failed</div>
+          <div style="color:#fecaca; line-height:1.5;">{html.escape(failure_error)}</div>
+        </div>
+        """
+        if failure_error
+        else ""
+    )
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -148,6 +164,8 @@ def build_email_html(
           <div>Session date: {html.escape(str(market_status.get("session_date") or ""))}</div>
         </div>
       </div>
+
+      {failure_html}
 
       <div style="margin-bottom:16px;">
         {_render_card_row_html([
@@ -168,9 +186,10 @@ def build_email_html(
               <th style="padding:12px 14px; border-bottom:1px solid #22314c;">Signal</th>
               <th style="padding:12px 14px; border-bottom:1px solid #22314c;">Score</th>
               <th style="padding:12px 14px; border-bottom:1px solid #22314c;">Price</th>
-              <th style="padding:12px 14px; border-bottom:1px solid #22314c;">5D</th>
-              <th style="padding:12px 14px; border-bottom:1px solid #22314c;">20D</th>
-              <th style="padding:12px 14px; border-bottom:1px solid #22314c;">RSI</th>
+              <th style="padding:12px 14px; border-bottom:1px solid #22314c;">Score Δ</th>
+              <th style="padding:12px 14px; border-bottom:1px solid #22314c;">1M</th>
+              <th style="padding:12px 14px; border-bottom:1px solid #22314c;">3M</th>
+              <th style="padding:12px 14px; border-bottom:1px solid #22314c;">RS 3M</th>
             </tr>
           </thead>
           <tbody>
@@ -275,9 +294,10 @@ def _render_ranking_row_html(row: dict[str, Any]) -> str:
       <td style="padding:12px 14px; border-bottom:1px solid #22314c; color:{signal_color};">{html.escape(signal)}</td>
       <td style="padding:12px 14px; border-bottom:1px solid #22314c;">{html.escape(_format_number(row.get("score")))}</td>
       <td style="padding:12px 14px; border-bottom:1px solid #22314c;">{html.escape(_format_price(row.get("price")))}</td>
-      <td style="padding:12px 14px; border-bottom:1px solid #22314c;">{html.escape(_format_percent(metrics.get("return_5d")))}</td>
-      <td style="padding:12px 14px; border-bottom:1px solid #22314c;">{html.escape(_format_percent(metrics.get("return_20d")))}</td>
-      <td style="padding:12px 14px; border-bottom:1px solid #22314c;">{html.escape(_format_number(metrics.get("rsi_14"), decimals=1))}</td>
+      <td style="padding:12px 14px; border-bottom:1px solid #22314c;">{html.escape(_format_signed_number(row.get("momentum_change")))}</td>
+      <td style="padding:12px 14px; border-bottom:1px solid #22314c;">{html.escape(_format_percent(metrics.get("return_21d")))}</td>
+      <td style="padding:12px 14px; border-bottom:1px solid #22314c;">{html.escape(_format_percent(metrics.get("return_63d")))}</td>
+      <td style="padding:12px 14px; border-bottom:1px solid #22314c;">{html.escape(_format_percent(metrics.get("relative_return_63d")))}</td>
     </tr>
     """
 
@@ -297,6 +317,8 @@ def _render_rebalance_section_html(
           <div>Keep: {html.escape(str(summary.get("keep_count", 0)))}</div>
           <div>Sell: {html.escape(str(summary.get("sell_count", 0)))}</div>
           <div>Buy: {html.escape(str(summary.get("buy_count", 0)))}</div>
+          <div>QQQ/SPY fallback: {html.escape(f"{float(plan.get('fallback_allocation_pct') or 0):.1f}%")}</div>
+          <div>Market regime: {html.escape(str((plan.get("market_regime") or {}).get("label") or ""))}</div>
         </div>
         {_render_action_lists_html("Current holdings actions", sells[:10], empty_message="No holdings actions available.")}
         {_render_action_lists_html("Buy candidates", buys[:10], empty_message="No buy candidates today.")}
@@ -321,6 +343,7 @@ def _render_action_lists_html(title: str, rows: list[dict[str, Any]], empty_mess
             f"score={html.escape(_format_number(row.get('score')))}, "
             f"rank={html.escape(str(row.get('rank_position') or ''))}, "
             f"price={html.escape(_format_price(row.get('price')))}"
+            f", destination={html.escape(str(row.get('destination') or ''))}"
             f"{_render_reason_suffix(row.get('reason'))}</li>"
         )
     return f"""
@@ -359,6 +382,15 @@ def _format_number(value: Any, decimals: int = 0) -> str:
         if decimals <= 0:
             return str(int(round(float(value))))
         return f"{float(value):.{decimals}f}"
+    except (TypeError, ValueError):
+        return ""
+
+
+def _format_signed_number(value: Any) -> str:
+    if value is None:
+        return ""
+    try:
+        return f"{int(round(float(value))):+d}"
     except (TypeError, ValueError):
         return ""
 

@@ -9,13 +9,14 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 import pandas_market_calendars as mcal
-from db import get_latest_run, get_recent_full_runs
+from db import get_latest_run, get_recent_full_runs, initialize_database
 from rebalance import build_rebalance_plan, load_holdings
 
 EASTERN_TZ = ZoneInfo("America/New_York")
 
 
 def build_dashboard(db_path: str | Path, output_path: str | Path) -> Path:
+    initialize_database(db_path)
     latest_run = get_latest_run(db_path)
     target = Path(output_path)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -36,7 +37,11 @@ def build_dashboard(db_path: str | Path, output_path: str | Path) -> Path:
 
 def _attach_rebalance_data(db_path: str | Path, target: Path, latest_run: dict[str, Any]) -> dict[str, Any]:
     run = dict(latest_run)
-    recent_runs = get_recent_full_runs(db_path, limit=2)
+    recent_runs = get_recent_full_runs(
+        db_path,
+        limit=2,
+        scoring_version=str(latest_run.get("scoring_version") or "monthly_momentum_v2"),
+    )
     latest_full_run = recent_runs[0] if recent_runs else run
     previous_run = recent_runs[1] if len(recent_runs) > 1 else None
 
@@ -523,11 +528,11 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
               <th>Signal</th>
               <th>Score</th>
               <th>Price</th>
-              <th>5d</th>
-              <th>20d</th>
-              <th>60d</th>
-              <th>RSI</th>
-              <th>Rel Vol</th>
+              <th>Score Δ</th>
+              <th>1m</th>
+              <th>3m</th>
+              <th>6m</th>
+              <th>RS 3m</th>
               <th>Notes</th>
             </tr>
           </thead>
@@ -731,6 +736,8 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
         ["Keep", summary.keep_count || 0],
         ["Sell", summary.sell_count || 0],
         ["Buy", summary.buy_count || 0],
+        ["Fallback", `${{number(rebalance.fallback_allocation_pct || 0, 1)}}%`],
+        ["Market regime", (rebalance.market_regime || {{}}).label || ""],
         ["Target positions", summary.target_positions_count || 0]
       ];
       rebalanceSummary.innerHTML = summaryCards.map(([label, value]) => `
@@ -754,8 +761,10 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
               <th>Rank</th>
               <th>Prev Rank</th>
               <th>Score</th>
+              <th>Score Δ</th>
               <th>Signal</th>
               <th>Price</th>
+              <th>Destination</th>
               <th>Reason</th>
             </tr>
           </thead>
@@ -769,12 +778,14 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
                       <td>${{safe(row.rank_position)}}</td>
                       <td>${{safe(row.previous_rank_position)}}</td>
                       <td>${{safe(row.score)}}</td>
+                      <td>${{safe(row.momentum_change)}}</td>
                       <td><span class="pill ${{safe(row.signal || "NEUTRAL")}}">${{safe(row.signal)}}</span></td>
                       <td>${{number(row.price)}}</td>
+                      <td>${{safe(row.destination)}}</td>
                       <td>${{safe(row.reason)}}</td>
                     </tr>
                   `).join("")
-                : `<tr><td colspan="8" class="empty">No current holdings supplied.</td></tr>`
+                : `<tr><td colspan="10" class="empty">No current holdings supplied.</td></tr>`
             }}
           </tbody>
         </table>
@@ -871,11 +882,11 @@ def _render_dashboard_html(run: dict[str, Any]) -> str:
           <td><span class="pill ${{safe(item.signal)}}">${{safe(item.signal)}}</span></td>
           <td>${{safe(item.score)}}</td>
           <td>${{number(item.price)}}</td>
-          <td>${{percent(item.metrics?.return_5d)}}</td>
-          <td>${{percent(item.metrics?.return_20d)}}</td>
-          <td>${{percent(item.metrics?.return_60d)}}</td>
-          <td>${{number(item.metrics?.rsi_14, 1)}}</td>
-          <td>${{number(item.metrics?.relative_volume_20, 2)}}</td>
+          <td>${{safe(item.momentum_change)}}</td>
+          <td>${{percent(item.metrics?.return_21d)}}</td>
+          <td>${{percent(item.metrics?.return_63d)}}</td>
+          <td>${{percent(item.metrics?.return_126d)}}</td>
+          <td>${{percent(item.metrics?.relative_return_63d)}}</td>
           <td>${{renderNotes(item)}}</td>
         </tr>
       `).join("");
@@ -1003,11 +1014,11 @@ def _render_simple_results_html(run: dict[str, Any]) -> str:
               <td><span class="pill {signal}">{signal}</span></td>
               <td>{html.escape(str(item.get("score", "")))}</td>
               <td>{fmt_number(item.get("price"))}</td>
-              <td>{fmt_percent(metrics.get("return_5d"))}</td>
-              <td>{fmt_percent(metrics.get("return_20d"))}</td>
-              <td>{fmt_percent(metrics.get("return_60d"))}</td>
-              <td>{fmt_number(metrics.get("rsi_14"), 1)}</td>
-              <td>{fmt_number(metrics.get("relative_volume_20"), 2)}</td>
+              <td>{html.escape(str(item.get("momentum_change", "")))}</td>
+              <td>{fmt_percent(metrics.get("return_21d"))}</td>
+              <td>{fmt_percent(metrics.get("return_63d"))}</td>
+              <td>{fmt_percent(metrics.get("return_126d"))}</td>
+              <td>{fmt_percent(metrics.get("relative_return_63d"))}</td>
               <td>{render_notes(item)}</td>
             </tr>
             """
@@ -1044,8 +1055,10 @@ def _render_simple_results_html(run: dict[str, Any]) -> str:
                   <td>{html.escape(str(row.get("rank_position", "")))}</td>
                   <td>{html.escape(str(row.get("previous_rank_position", "")))}</td>
                   <td>{html.escape(str(row.get("score", "")))}</td>
+                  <td>{html.escape(str(row.get("momentum_change", "")))}</td>
                   <td>{html.escape(str(row.get("signal", "")))}</td>
                   <td>{fmt_number(row.get("price"))}</td>
+                  <td>{html.escape(str(row.get("destination", "")))}</td>
                   <td>{html.escape(str(row.get("reason", "")))}</td>
                 </tr>
                 """
@@ -1093,13 +1106,15 @@ def _render_simple_results_html(run: dict[str, Any]) -> str:
                   <th>Rank</th>
                   <th>Prev Rank</th>
                   <th>Score</th>
+                  <th>Score Δ</th>
                   <th>Signal</th>
                   <th>Price</th>
+                  <th>Destination</th>
                   <th>Reason</th>
                 </tr>
               </thead>
               <tbody>
-                {"".join(holding_rows) if holding_rows else '<tr><td colspan="8" class="empty">No current holdings supplied.</td></tr>'}
+                {"".join(holding_rows) if holding_rows else '<tr><td colspan="10" class="empty">No current holdings supplied.</td></tr>'}
               </tbody>
             </table>
           </div>
@@ -1320,11 +1335,11 @@ def _render_simple_results_html(run: dict[str, Any]) -> str:
             <th>Signal</th>
             <th>Score</th>
             <th>Price</th>
-            <th>5d</th>
-            <th>20d</th>
-            <th>60d</th>
-            <th>RSI</th>
-            <th>Rel Vol</th>
+            <th>Score Δ</th>
+            <th>1m</th>
+            <th>3m</th>
+            <th>6m</th>
+            <th>RS 3m</th>
             <th>Notes</th>
           </tr>
         </thead>

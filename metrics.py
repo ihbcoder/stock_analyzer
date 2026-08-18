@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from indicators import distance_from_high, ema, macd, percent_return, relative_volume, rsi, sma
+from indicators import annualized_volatility, distance_from_high, ema, macd, percent_return, relative_volume, rsi, sma
 
 
 def build_metrics(history: pd.DataFrame) -> pd.DataFrame:
@@ -16,9 +16,15 @@ def build_metrics(history: pd.DataFrame) -> pd.DataFrame:
     frame["return_5d"] = percent_return(close, 5)
     frame["return_20d"] = percent_return(close, 20)
     frame["return_60d"] = percent_return(close, 60)
+    frame["return_21d"] = percent_return(close, 21)
+    frame["return_63d"] = percent_return(close, 63)
+    frame["return_126d"] = percent_return(close, 126)
+    frame["return_252d"] = percent_return(close, 252)
     frame["rsi_14"] = rsi(close, 14)
     frame["relative_volume_20"] = relative_volume(volume, 20)
     frame["distance_from_52_week_high"] = distance_from_high(close, 252)
+    frame["average_dollar_volume_20"] = (close * volume).rolling(window=20, min_periods=20).mean()
+    frame["annualized_volatility_20"] = annualized_volatility(close, 20)
 
     macd_line, macd_signal, macd_histogram = macd(close)
     frame["macd"] = macd_line

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from analyzer import run_analysis
@@ -129,6 +130,12 @@ def parse_args() -> argparse.Namespace:
         default=55,
         help="Sell when a holding falls below this score",
     )
+    rebalance_parser.add_argument(
+        "--rotation-score-gap",
+        type=int,
+        default=10,
+        help="Minimum score advantage a buy needs to replace an otherwise eligible holding",
+    )
 
     prices_parser = subparsers.add_parser("prices", help="Show saved price history for one ticker")
     prices_parser.add_argument("ticker", help="Ticker symbol, for example NVDA")
@@ -152,6 +159,19 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def _build_failure_result(input_path: str, error: Exception) -> dict[str, object]:
+    return {
+        "generated_at": datetime.now().astimezone().isoformat(),
+        "strategy": "momentum",
+        "benchmark": "QQQ",
+        "run_status": "failed",
+        "market_status": {},
+        "rankings": [],
+        "failure_error": f"{type(error).__name__}: {error}",
+        "source_input": input_path,
+    }
+
+
 def main() -> int:
     args = parse_args()
     logger = configure_logging(Path(args.log))
@@ -166,26 +186,44 @@ def main() -> int:
                 args.dashboard_output,
                 args.email_report,
             )
-            results = run_analysis(args.input)
-            write_json(args.output, results)
-            db_path = Path(args.db)
-            initialize_database(db_path)
-            run_id = save_analysis_result(db_path, results, source_input=args.input)
-            dashboard_path = build_dashboard(db_path, args.dashboard_output)
-            recent_runs = get_recent_full_runs(db_path, limit=2)
-            latest_run = recent_runs[0] if recent_runs else None
-            previous_run = recent_runs[1] if len(recent_runs) > 1 else None
-            if args.email_report:
-                send_scan_email_report(
-                    results,
-                    latest_run=latest_run,
-                    previous_run=previous_run,
-                    holdings_file=args.holdings_file,
+            try:
+                results = run_analysis(args.input)
+                write_json(args.output, results)
+                db_path = Path(args.db)
+                initialize_database(db_path)
+                run_id = save_analysis_result(db_path, results, source_input=args.input)
+                dashboard_path = build_dashboard(db_path, args.dashboard_output)
+                recent_runs = get_recent_full_runs(
+                    db_path, limit=2, scoring_version=results.get("scoring_version")
                 )
-                logger.info(
-                    "Email report sent to configured recipient holdings_file=%s",
-                    args.holdings_file,
-                )
+                latest_run = recent_runs[0] if recent_runs else None
+                previous_run = recent_runs[1] if len(recent_runs) > 1 else None
+                if args.email_report:
+                    send_scan_email_report(
+                        results,
+                        latest_run=latest_run,
+                        previous_run=previous_run,
+                        holdings_file=args.holdings_file,
+                    )
+                    logger.info(
+                        "Email report sent to configured recipient holdings_file=%s",
+                        args.holdings_file,
+                    )
+            except Exception as exc:
+                logger.exception("Scan failed")
+                if args.email_report:
+                    try:
+                        send_scan_email_report(
+                            _build_failure_result(args.input, exc),
+                            holdings_file=args.holdings_file,
+                        )
+                        logger.info(
+                            "Failure email report sent to configured recipient holdings_file=%s",
+                            args.holdings_file,
+                        )
+                    except Exception:
+                        logger.exception("Unable to send failure email report")
+                return 1
             logger.info(
                 "Completed scan run_id=%s run_status=%s rankings=%s generated_at=%s dashboard=%s",
                 run_id,
@@ -219,7 +257,15 @@ def main() -> int:
                 args.buy_score,
                 args.sell_score,
             )
-            runs = get_recent_full_runs(Path(args.db), limit=2)
+            runs = get_recent_full_runs(
+                Path(args.db), limit=2, scoring_version="monthly_momentum_v2"
+            )
+            if not runs:
+                print(
+                    "No monthly_momentum_v2 scans are available yet. "
+                    "Run a new scan before requesting a rebalance recommendation."
+                )
+                return 0
             latest_run = runs[0] if runs else None
             previous_run = runs[1] if len(runs) > 1 else None
             holdings = load_holdings(args.holdings, args.holdings_file)
@@ -230,6 +276,7 @@ def main() -> int:
                 top_n=args.top_n,
                 buy_score=args.buy_score,
                 sell_score=args.sell_score,
+                rotation_score_gap=args.rotation_score_gap,
             )
             print(build_rebalance_report_text(report))
             logger.info(

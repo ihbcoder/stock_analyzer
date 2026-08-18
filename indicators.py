@@ -43,3 +43,7 @@ def relative_volume(volume: pd.Series, window: int = 20) -> pd.Series:
 def distance_from_high(series: pd.Series, window: int = 252) -> pd.Series:
     rolling_high = series.rolling(window=window, min_periods=window).max()
     return (series / rolling_high) - 1
+
+
+def annualized_volatility(series: pd.Series, window: int = 20) -> pd.Series:
+    return series.pct_change().rolling(window=window, min_periods=window).std() * np.sqrt(252)

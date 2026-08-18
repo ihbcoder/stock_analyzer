@@ -9,89 +9,75 @@ def score_stock(
     stock_row: dict[str, float | None],
     benchmark_row: dict[str, float | None],
     minimum_score: int,
+    relative_strength_percentile: float | None = None,
+    one_month_relative_strength_percentile: float | None = None,
 ) -> StockAnalysis:
     score = 0
     reasons: list[str] = []
     risk_flags: list[str] = []
 
     price = _as_float(stock_row.get("close"))
-    ema_20 = _as_float(stock_row.get("ema_20"))
     sma_50 = _as_float(stock_row.get("sma_50"))
     sma_200 = _as_float(stock_row.get("sma_200"))
-    return_5d = _as_float(stock_row.get("return_5d"))
-    return_20d = _as_float(stock_row.get("return_20d"))
-    return_60d = _as_float(stock_row.get("return_60d"))
+    return_21d = _as_float(stock_row.get("return_21d"))
+    return_63d = _as_float(stock_row.get("return_63d"))
+    return_126d = _as_float(stock_row.get("return_126d"))
+    return_252d = _as_float(stock_row.get("return_252d"))
     rsi_14 = _as_float(stock_row.get("rsi_14"))
     rel_vol = _as_float(stock_row.get("relative_volume_20"))
     dist_high = _as_float(stock_row.get("distance_from_52_week_high"))
-    macd_value = _as_float(stock_row.get("macd"))
-    macd_signal = _as_float(stock_row.get("macd_signal"))
-    benchmark_20d = _as_float(benchmark_row.get("return_20d"))
-    benchmark_60d = _as_float(benchmark_row.get("return_60d"))
+    benchmark_21d = _as_float(benchmark_row.get("return_21d"))
+    benchmark_63d = _as_float(benchmark_row.get("return_63d"))
+    benchmark_126d = _as_float(benchmark_row.get("return_126d"))
+    benchmark_252d = _as_float(benchmark_row.get("return_252d"))
 
-    if _gt(price, ema_20):
-        score += 8
-        reasons.append("Price is above the 20-day EMA")
+    if relative_strength_percentile is not None:
+        relative_strength_points = round(50 * relative_strength_percentile)
+        score += relative_strength_points
+        reasons.append(f"Multi-horizon relative strength is in the {relative_strength_percentile * 100:.0f}th percentile")
+    if one_month_relative_strength_percentile is not None:
+        one_month_points = round(15 * one_month_relative_strength_percentile)
+        score += one_month_points
+        reasons.append(f"One-month relative strength is in the {one_month_relative_strength_percentile * 100:.0f}th percentile")
+
     if _gt(price, sma_50):
-        score += 8
+        score += 10
         reasons.append("Price is above the 50-day SMA")
     if _gt(price, sma_200):
-        score += 9
+        score += 10
         reasons.append("Price is above the 200-day SMA")
-
-    if _gt(return_20d, benchmark_20d):
-        score += 10
-        reasons.append("Outperformed the benchmark over 20 days")
-    if _gt(return_60d, benchmark_60d):
-        score += 10
-        reasons.append("Outperformed the benchmark over 60 days")
-
-    if _gt(return_5d, 0):
-        score += 5
-        reasons.append("Positive 5-day return")
-    if _gt(return_20d, 0):
-        score += 7
-        reasons.append("Positive 20-day return")
-    if _gt(return_60d, 0):
-        score += 8
-        reasons.append("Positive 60-day return")
-
-    if rsi_14 is not None and 55 <= rsi_14 <= 72:
-        score += 6
-        reasons.append("RSI is in a healthy momentum range")
-    elif rsi_14 is not None and rsi_14 > 80:
+    if rsi_14 is not None and rsi_14 > 80:
         risk_flags.append("RSI is very extended")
 
-    if _gt(macd_value, macd_signal):
-        score += 4
-        reasons.append("MACD is above its signal line")
-
-    if _gt(rel_vol, 1.25):
-        score += 10
-        reasons.append("Volume is above the 20-day average")
-
     if dist_high is not None and dist_high >= -0.10:
-        score += 10
+        score += 15
         reasons.append("Trading within 10% of the 52-week high")
     elif dist_high is not None and dist_high < -0.25:
         risk_flags.append("Far below the 52-week high")
 
-    if price is not None and ema_20 is not None and price > ema_20 * 1.15:
-        risk_flags.append("Price is more than 15% above the 20-day EMA")
-
     signal = classify_score(score, minimum_score)
     metrics = {
         "price": price,
-        "return_5d": return_5d,
-        "return_20d": return_20d,
-        "return_60d": return_60d,
+        "return_5d": _as_float(stock_row.get("return_5d")),
+        "return_20d": _as_float(stock_row.get("return_20d")),
+        "return_60d": _as_float(stock_row.get("return_60d")),
+        "return_21d": return_21d,
+        "return_63d": return_63d,
+        "return_126d": return_126d,
+        "return_252d": return_252d,
         "rsi_14": rsi_14,
         "relative_volume_20": rel_vol,
         "distance_from_52_week_high": dist_high,
-        "macd": macd_value,
-        "macd_signal": macd_signal,
-        "benchmark_return_20d": benchmark_20d,
-        "benchmark_return_60d": benchmark_60d,
+        "benchmark_return_21d": benchmark_21d,
+        "benchmark_return_63d": benchmark_63d,
+        "benchmark_return_126d": benchmark_126d,
+        "benchmark_return_252d": benchmark_252d,
+        "relative_return_21d": _difference(return_21d, benchmark_21d),
+        "relative_return_63d": _difference(return_63d, benchmark_63d),
+        "relative_return_126d": _difference(return_126d, benchmark_126d),
+        "relative_return_252d": _difference(return_252d, benchmark_252d),
+        "relative_strength_percentile": relative_strength_percentile,
+        "one_month_relative_strength_percentile": one_month_relative_strength_percentile,
     }
 
     return StockAnalysis(
@@ -131,3 +117,7 @@ def _as_float(value: object) -> float | None:
 
 def _gt(left: float | None, right: float | None) -> bool:
     return left is not None and right is not None and left > right
+
+
+def _difference(left: float | None, right: float | None) -> float | None:
+    return left - right if left is not None and right is not None else None
